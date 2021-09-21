@@ -1,8 +1,8 @@
 import React, { useState, useRef } from "react";
-import { Button, View, FlatList, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, Image, Alert } from "react-native";
+import { Button, View, FlatList, SafeAreaView, StatusBar, Text, TouchableOpacity, Image, Alert } from "react-native";
 
 //This is the component that will be rendered by the flatlist.
-const Item = ({ item, onPress}) => (
+const Item = ({ item, pass, uq}) => (
   <View
   style={{
     padding: 20,
@@ -28,7 +28,7 @@ const Item = ({ item, onPress}) => (
       backgroundColor: "#28b463",
       borderRadius: 5,
       top: 19,
-      left: 150
+      left: 110
     }}>
     {item.route.toUpperCase()}
     </Text>
@@ -41,14 +41,14 @@ const Item = ({ item, onPress}) => (
       fontWeight: "bold",
       fontStyle: "italic",
       position: "absolute",
-      right: 50,
+      right: 100,
       top: 19
     }}
     >
     {item.passengers === item.capacity ? "FULL" : item.passengers + "/" + item.capacity}
     </Text>
     <TouchableOpacity
-    onPress = {onPress}
+    onPress = {pass}
     style = {{
       position: "absolute",
       right: 10,
@@ -63,23 +63,38 @@ const Item = ({ item, onPress}) => (
     source = {require('../assets/menu.png')}
     />
     </TouchableOpacity>
+    <TouchableOpacity
+    onPress = {uq}
+    style = {{
+      position: "absolute",
+      right: 50,
+      top: 18,
+    }}
+    >
+    <Image
+    style = {{
+      width: 30,
+      height: 30,
+    }}
+    source = {require('../assets/remove.png')}
+    />
+    </TouchableOpacity>
   </View>
 );
 
 const PUVlist = (props) => {
 
   //This variable holds the data that will be used for the flatlist component.
-  const [reply, setReply] = useState(null);
+  const [reply, setReply] = useState('[]');
 
   //This is an event that will be triggered if a message was received.
   props.ws.onmessage = (e) => {
-    if(e.data === 'null'){
+    if(e.data === '[]'){
       retrieveList();
     }
     else{
       setReply(e.data);
     }
-    console.log("message received: " + e.data);
   }
 
 
@@ -96,10 +111,32 @@ const PUVlist = (props) => {
     .then((json) => {
       setReply(json);
       console.log(json);
-    }).catch((error) => {
-      console.error(error);
-    });
+    }).catch((error) => unsuccess());
   }
+
+  const success = () => Alert.alert(
+    "Success",
+    "Vehicle successfully unqueued",
+    [
+      {
+        text: "Ok",
+        onPress: () => {
+        }
+      }
+    ]
+  );
+
+  const unsuccess = () => Alert.alert(
+    "Error occured",
+    "Something went wrong doing the operation",
+    [
+      {
+        text: "Ok",
+        onPress: () => {
+        }
+      }
+    ]
+  );
 
   const unqueue = (data) => {
     fetch('http://192.168.1.15/CapstoneWeb/unqueue.php', {
@@ -114,8 +151,10 @@ const PUVlist = (props) => {
     }).then((response) => response.json())
     .then((json) => {
       props.ws.send(json);
+      console.log(json);
+      success();
     })
-
+    .catch((error) => unsuccess())
   }
 
   const unqueueAlert = (data) => Alert.alert(
@@ -137,11 +176,12 @@ const PUVlist = (props) => {
   );
 
 
-  const renderItem = ({ item, index }) => {
+  const renderItem = ({ item }) => {
     return(
       <Item
       item = {item}
-      onPress = {() => unqueueAlert(item.vehicle)}
+      pass = {() => props.navigation.navigate('Options', {vehicle: [item.route + "_" + item.vehicle + ".json", item.vehicle]})}
+      uq = {() => unqueueAlert(item.vehicle)}
       />
     );
   }
@@ -155,7 +195,6 @@ const PUVlist = (props) => {
      <FlatList
      data = {JSON.parse(reply)}
      renderItem = {renderItem}
-     keyExtractor = {(item) =>  item.vehicle}
      extraData = {JSON.parse(reply)}
      />
     </SafeAreaView>

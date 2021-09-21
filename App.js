@@ -3,10 +3,15 @@ import { Text, View, Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import QRScanner from './parts/qrscanner';
 import PUVlist from './parts/puvlist';
+import Dummy from './parts/dummy';
+
 
 var ws;
+
+const Stack = createNativeStackNavigator();
 
 //websocket connection
 const websocketConnection = () => {
@@ -20,7 +25,7 @@ const websocketConnection = () => {
     console.log(e.message);
   }
 
-  ws.onopen = () => {
+    ws.onopen = () => {
    console.log("connected");
   }
 }
@@ -49,14 +54,39 @@ function scanner() {
     );
 }
 
-function puvs({navigation}) {
+function queuingPUV({navigation}){
   return (
-    <PUVlist
-    navigation = {navigation}
-    ws = {ws}
+      <PUVlist
+      navigation = {navigation}
+      ws = {ws}
+      />
+  );
+}
+
+function puvDetails({route}){
+  return(
+    <Dummy
+    route={route}
     />
   );
 }
+
+function puvs() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+      name="PUVs"
+      component={queuingPUV}
+      />
+      <Stack.Screen
+      name="Options"
+      component={puvDetails}
+      options={({ route }) => ({ title: route.params.vehicle[1] })}
+      />
+    </Stack.Navigator>
+  );
+}
+
 
 const Tab = createBottomTabNavigator();
 
@@ -82,7 +112,7 @@ export default function App() {
             })}
       >
         <Tab.Screen name="Scanner" component={scanner} />
-        <Tab.Screen name="PUVS" component={puvs} />
+        <Tab.Screen name="PUVS" component={puvs} options={{headerShown: false}}/>
       </Tab.Navigator>
     </NavigationContainer>
   );
