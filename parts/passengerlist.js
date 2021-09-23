@@ -40,12 +40,12 @@ const Passenger = ({item}) => (
 );
 
 
-const Dummy = ({route}) => {
+const Passengerlist = ({route}) => {
 
   const [reply, setReply] = useState(null);
 
   const retrievePassengerList = (data) => {
-    fetch('http://192.168.1.15/CapstoneWeb/retrievepassengerlist.php',
+    fetch('http://192.168.1.12/CapstoneWeb/retrievepassengerlist.php',
     {
       method: 'POST',
       headers: {
@@ -84,4 +84,4 @@ const Dummy = ({route}) => {
 
 }
 
-export default Dummy;
+export default Passengerlist;

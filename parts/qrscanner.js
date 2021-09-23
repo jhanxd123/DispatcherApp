@@ -10,7 +10,7 @@ const QRScanner = (props) => {
 
   //asdf
   const retrieveList = () => {
-  fetch('http://192.168.1.15/CapstoneWeb/retrievelist.php', {
+  fetch('http://192.168.1.12/CapstoneWeb/retrievelist.php', {
     method: 'POST',
     headers: {
       Accept: 'application/json',
@@ -35,7 +35,7 @@ const QRScanner = (props) => {
 
   // This function is for assigning passengers with vehicles.
   const process = (data) => {
-    fetch('http://192.168.1.15/CapstoneWeb/scan_process.php', {
+    fetch('http://192.168.1.12/CapstoneWeb/scan_process.php', {
       method: 'POST',
       headers:{
         Accept: 'application/json',

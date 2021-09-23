@@ -101,7 +101,7 @@ const PUVlist = (props) => {
 
   //This will retrieve the list of currently queuing vehicles from the server.
   const retrieveList = () => {
-  fetch('http://192.168.1.15/CapstoneWeb/retrievelist.php', {
+  fetch('http://192.168.1.12/CapstoneWeb/retrievelist.php', {
     method: 'POST',
     headers: {
       Accept: 'application/json',
@@ -139,7 +139,7 @@ const PUVlist = (props) => {
   );
 
   const unqueue = (data) => {
-    fetch('http://192.168.1.15/CapstoneWeb/unqueue.php', {
+    fetch('http://192.168.1.12/CapstoneWeb/unqueue.php', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
