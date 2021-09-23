@@ -6,7 +6,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import QRScanner from './parts/qrscanner';
 import PUVlist from './parts/puvlist';
-import Dummy from './parts/dummy';
+import Passengerlist from './parts/passengerlist';
 
 
 var ws;
@@ -15,7 +15,7 @@ const Stack = createNativeStackNavigator();
 
 //websocket connection
 const websocketConnection = () => {
-  ws = new WebSocket('ws://192.168.1.15:8082');
+  ws = new WebSocket('ws://192.168.1.12:8082');
 
   ws.onclose = (e) => {
     connectionError();
@@ -65,7 +65,7 @@ function queuingPUV({navigation}){
 
 function puvDetails({route}){
   return(
-    <Dummy
+    <Passengerlist
     route={route}
     />
   );
