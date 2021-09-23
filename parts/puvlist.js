@@ -151,8 +151,7 @@ const PUVlist = (props) => {
     }).then((response) => response.json())
     .then((json) => {
       props.ws.send(json);
-      console.log(json);
-      success();
+      json === "Halt" ? unsuccess() : success();
     })
     .catch((error) => unsuccess())
   }
