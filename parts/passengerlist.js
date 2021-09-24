@@ -41,9 +41,15 @@ const Passenger = ({item, unload}) => (
 );
 
 
-const Passengerlist = ({route}) => {
+const Passengerlist = ({ws, route}) => {
 
   const [reply, setReply] = useState(null);
+
+  ws.onmessage = (e) => {
+    if(e.data === 'LOADCHANGES'){
+      retrievePassengerList();
+    }
+  }
 
   const retrievePassengerList = (data) => {
     console.log(data);
@@ -63,14 +69,13 @@ const Passengerlist = ({route}) => {
     }).catch((error) => unsuccess());
   }
 
-  const success = (data) => Alert.alert(
+  const success = () => Alert.alert(
       "Success",
       "Passenger successfully unload",
       [
         {
           text: "Ok",
           onPress: () => {
-            setReply(data);
           }
         }
       ]
@@ -103,8 +108,8 @@ const Passengerlist = ({route}) => {
       })
     }).then((response) => response.json())
     .then((json) => {
-      let data = json;
-      json === "Halt" ? unsuccess() : success(data);
+      ws.send("LOADCHANGES");
+      json === "Halt" ? unsuccess() : success();
     }).catch((error) => unsuccess());
   }
 
