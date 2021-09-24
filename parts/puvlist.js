@@ -111,7 +111,8 @@ const PUVlist = (props) => {
     .then((json) => {
       setReply(json);
       console.log(json);
-    }).catch((error) => unsuccess());
+    })
+    .catch((error) => unsuccess());
   }
 
   const success = () => Alert.alert(
