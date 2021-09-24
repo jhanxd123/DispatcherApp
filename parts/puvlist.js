@@ -85,15 +85,12 @@ const Item = ({ item, pass, uq}) => (
 const PUVlist = (props) => {
 
   //This variable holds the data that will be used for the flatlist component.
-  const [reply, setReply] = useState('[]');
+  const [reply, setReply] = useState(null);
 
   //This is an event that will be triggered if a message was received.
   props.ws.onmessage = (e) => {
-    if(e.data === '[]'){
+    if(e.data === 'PUVCHANGES'){
       retrieveList();
-    }
-    else{
-      setReply(e.data);
     }
   }
 
@@ -151,7 +148,7 @@ const PUVlist = (props) => {
       })
     }).then((response) => response.json())
     .then((json) => {
-      props.ws.send(json);
+      props.ws.send('PUVCHANGES');
       json === "Halt" ? unsuccess() : success();
     })
     .catch((error) => unsuccess())

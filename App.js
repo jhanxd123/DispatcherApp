@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Text, View, Alert } from 'react-native';
+import { Text, Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -7,6 +7,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import QRScanner from './parts/qrscanner';
 import PUVlist from './parts/puvlist';
 import Passengerlist from './parts/passengerlist';
+import Manualqueuing from './parts/manual';
 
 
 var ws;
@@ -46,6 +47,12 @@ const connectionError = () => Alert.alert(
   ]
 );
 
+function manualQueuing(){
+  return(
+    <Manualqueuing/>
+  );
+}
+
 function scanner() {
     return (
       <QRScanner
@@ -67,6 +74,7 @@ function puvDetails({route}){
   return(
     <Passengerlist
     route={route}
+    ws = {ws}
     />
   );
 }
@@ -102,6 +110,8 @@ export default function App() {
               iconName = 'qr-code';
             } else if (route.name === 'PUVS') {
               iconName = 'bus';
+            } else if (route.name === 'Manual') {
+              iconName = 'hand-left';
             }
 
             // You can return any component that you like here!
@@ -112,7 +122,8 @@ export default function App() {
             })}
       >
         <Tab.Screen name="Scanner" component={scanner} />
-        <Tab.Screen name="PUVS" component={puvs} options={{headerShown: false}}/>
+        <Tab.Screen name="PUVS" component={puvs} options={{headerShown: false}} />
+        <Tab.Screen name="Manual" component={manualQueuing} options={{tabBarHideOnKeyboard: true}} />
       </Tab.Navigator>
     </NavigationContainer>
   );
