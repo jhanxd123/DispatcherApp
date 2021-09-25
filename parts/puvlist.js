@@ -82,23 +82,21 @@ const Item = ({ item, pass, uq}) => (
   </View>
 );
 
-const PUVlist = (props) => {
+const PUVlist = ({navigation, ws, warning, success}) => {
 
   //This variable holds the data that will be used for the flatlist component.
   const [reply, setReply] = useState(null);
 
   //This is an event that will be triggered if a message was received.
-  props.ws.onmessage = (e) => {
+  ws.onmessage = (e) => {
     if(e.data === 'PUVCHANGES'){
       retrieveList();
     }
   }
 
-
-
   //This will retrieve the list of currently queuing vehicles from the server.
   const retrieveList = () => {
-  fetch('http://192.168.1.12/CapstoneWeb/retrievelist.php', {
+  fetch('http://192.168.1.15/CapstoneWeb/retrievelist.php', {
     method: 'POST',
     headers: {
       Accept: 'application/json',
@@ -109,35 +107,11 @@ const PUVlist = (props) => {
       setReply(json);
       console.log(json);
     })
-    .catch((error) => unsuccess());
+    .catch((error) => warning());
   }
 
-  const success = () => Alert.alert(
-    "Success",
-    "Vehicle successfully unqueued",
-    [
-      {
-        text: "Ok",
-        onPress: () => {
-        }
-      }
-    ]
-  );
-
-  const unsuccess = () => Alert.alert(
-    "Error occured",
-    "Something went wrong doing the operation",
-    [
-      {
-        text: "Ok",
-        onPress: () => {
-        }
-      }
-    ]
-  );
-
   const unqueue = (data) => {
-    fetch('http://192.168.1.12/CapstoneWeb/unqueue.php', {
+    fetch('http://192.168.1.15/CapstoneWeb/unqueue.php', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -148,10 +122,10 @@ const PUVlist = (props) => {
       })
     }).then((response) => response.json())
     .then((json) => {
-      props.ws.send('PUVCHANGES');
-      json === "Halt" ? unsuccess() : success();
+      ws.send('PUVCHANGES');
+      json === "Halt" ? warning() : success();
     })
-    .catch((error) => unsuccess())
+    .catch((error) => warning())
   }
 
   const unqueueAlert = (data) => Alert.alert(
@@ -183,7 +157,7 @@ const PUVlist = (props) => {
     );
   }
 
-  props.navigation.addListener('focus', () =>  {
+  navigation.addListener('focus', () =>  {
     retrieveList();
   })
 

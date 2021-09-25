@@ -1,25 +1,81 @@
 import React, { useState } from 'react';
-import { Text, TextInput, StyleSheet, SafeAreaView, View, TouchableOpacity } from 'react-native';
+import { Text, TextInput, StyleSheet, SafeAreaView, View, TouchableOpacity, Alert } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 
-const Manualqueuing = () => {
+const Manualqueuing = ({warning}) => {
   const [fname, setFname] = useState('');
   const [mname, setMname] = useState('');
   const [lname, setLname] = useState('');
   const [cnum, setCnum] = useState('');
   const [dest, setDest] = useState('');
+  const [status, setStatus] = useState('STATUS');
+
+   const reminder = () => Alert.alert(
+     "Missing Information",
+     "Please fill all the fields with the asked information",
+     [
+       {
+         text: "Ok",
+         onPress: () => {
+         }
+       }
+     ]
+    );
+
+  const reset = () => {
+    setFname('');
+    setMname('');
+    setLname('');
+    setCnum('');
+    setDest('');
+    setStatus('STATUS');
+  }
 
   const validate = () => {
-     if(fname === '' || mname === '' || lname === '' || cnum === '' || dest === ''){
-        console.log("cannot queue");
+     if(fname.trim() === '' || mname.trim()  === '' || lname.trim() === '' || cnum.trim() === '' || dest.trim() === ''){
+       reminder();
      }
      else{
-       console.log("Okay");
+        loadPassenger(JSON.stringify(
+          {
+            type: "passenger",
+            name: fname.trim() + " " + mname.trim() + " " + lname.trim(),
+            cnum: cnum.trim(),
+            destination: dest.trim()
+          }
+        )
+      );
+       reset();
      }
+  }
+
+  // This function is for assigning passengers with vehicles.
+  const loadPassenger = (data) => {
+    fetch('http://192.168.1.15/CapstoneWeb/scan_process.php', {
+      method: 'POST',
+      headers:{
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        data: data,
+        state: "plain"
+      })
+    }).then((response) => response.json())
+    .then((json) => {
+      setStatus(json);
+    }).catch((error) => {
+      setStatus('Server maybe down');
+    });
   }
 
   return(
     <SafeAreaView style={{padding: 20}}>
+      <View style={inputStyle.status}>
+        <Text style={{fontSize: 20, color: "red", fontWeight: "bold", fontStyle: "italic"}}>
+          {status}
+        </Text>
+      </View>
       <TextInput
         style={inputStyle.input}
         placeholder = "First name"
@@ -95,7 +151,7 @@ const inputStyle = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#aeb6bf",
     borderRadius: 10,
-    marginBottom: 70
+    marginBottom: 40
   },
   pressable:{
     backgroundColor: "#f7dc6f",
@@ -104,6 +160,10 @@ const inputStyle = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 2,
     borderColor: "#f1c40f"
+  },
+  status:{
+    marginBottom: 20,
+    alignItems: "center"
   }
 })
 

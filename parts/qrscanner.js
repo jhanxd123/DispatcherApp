@@ -2,55 +2,38 @@ import React, { Component, useState } from 'react';
 import { StyleSheet, Text, View, Button, TouchableOpacity} from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 
-const QRScanner = (props) => {
+const QRScanner = ({ws}) => {
 
-  const [plateNo, setPlateNo] = useState('Status');
+  const [status, setStatus] = useState('STATUS');
   const [botton, setBotton] = useState(true); //You stop here, Remember 1 CORINTHIANS 10:31
   const [reply, setReply] = useState('null');
-
-  //asdf
-  const retrieveList = () => {
-  fetch('http://192.168.1.12/CapstoneWeb/retrievelist.php', {
-    method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    }
-    }).then((response) => response.json())
-    .then((json) => {
-        setReply(json);
-        console.log(reply);
-        props.ws.send(reply);
-    }).catch((error) => {
-      console.error(error);
-    });
-  }
 
   //This function is called upon reading the stored data in the QR  Code.
   const readingQr = (e) => {
     setBotton(false);
     let data = e.data;
-    process(data);
+    loadPassenger(data);
   }
 
   // This function is for assigning passengers with vehicles.
-  const process = (data) => {
-    fetch('http://192.168.1.12/CapstoneWeb/scan_process.php', {
+  const loadPassenger = (data) => {
+    fetch('http://192.168.1.15/CapstoneWeb/scan_process.php', {
       method: 'POST',
       headers:{
         Accept: 'application/json',
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        data: data
+        data: data,
+        state: "encrypted"
       })
     }).then((response) => response.json())
     .then((json) => {
-      setPlateNo(json);
+      setStatus(json);
+      ws.send("PUVCHANGES");
     }).catch((error) => {
-      setPlateNo('Server maybe down');
+      setStatus('Server maybe down');
     });
-    retrieveList();
   }
 
 
@@ -58,7 +41,7 @@ const QRScanner = (props) => {
   const reScan = () => {
     scanner.reactivate();
     setBotton(true);
-    setPlateNo('Status');
+    setStatus('STATUS');
   }
 
   return(
@@ -77,8 +60,8 @@ const QRScanner = (props) => {
       }
       topContent = {
         <View>
-          <Text style={{fontSize: 25}}>
-            {plateNo}
+          <Text style={{fontSize: 20, color: "red", fontWeight: "bold", fontStyle: "italic"}}>
+            {status}
           </Text>
         </View>
       }

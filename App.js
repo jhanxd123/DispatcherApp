@@ -16,7 +16,7 @@ const Stack = createNativeStackNavigator();
 
 //websocket connection
 const websocketConnection = () => {
-  ws = new WebSocket('ws://192.168.1.12:8082');
+  ws = new WebSocket('ws://192.168.1.15:8082');
 
   ws.onclose = (e) => {
     connectionError();
@@ -47,9 +47,35 @@ const connectionError = () => Alert.alert(
   ]
 );
 
+const unsuccess = () => Alert.alert(
+  "Error occured",
+  "Something went wrong doing the operation",
+  [
+    {
+      text: "Ok",
+      onPress: () => {
+      }
+    }
+  ]
+);
+
+const success = () => Alert.alert(
+  "Success",
+  "Vehicle successfully unqueued",
+  [
+    {
+      text: "Ok",
+      onPress: () => {
+      }
+    }
+  ]
+);
+
 function manualQueuing(){
   return(
-    <Manualqueuing/>
+    <Manualqueuing
+      warning = {unsuccess}
+    />
   );
 }
 
@@ -66,6 +92,8 @@ function queuingPUV({navigation}){
       <PUVlist
       navigation = {navigation}
       ws = {ws}
+      warning = {unsuccess}
+      success = {success}
       />
   );
 }
@@ -73,8 +101,10 @@ function queuingPUV({navigation}){
 function puvDetails({route}){
   return(
     <Passengerlist
-    route={route}
+    route= {route}
     ws = {ws}
+    warning = {unsuccess}
+    success = {success}
     />
   );
 }
