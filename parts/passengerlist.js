@@ -41,7 +41,7 @@ const Passenger = ({item, unload}) => (
 );
 
 
-const Passengerlist = ({ws, route}) => {
+const Passengerlist = ({ws, route, warning, success}) => {
 
   const [reply, setReply] = useState(null);
 
@@ -53,7 +53,7 @@ const Passengerlist = ({ws, route}) => {
 
   const retrievePassengerList = (data) => {
     console.log(data);
-    fetch('http://192.168.1.12/CapstoneWeb/retrievepassengerlist.php',
+    fetch('http://192.168.1.15/CapstoneWeb/retrievepassengerlist.php',
     {
       method: 'POST',
       headers: {
@@ -66,35 +66,12 @@ const Passengerlist = ({ws, route}) => {
     }).then((response) => response.json())
     .then((json) => {
       setReply(json);
-    }).catch((error) => unsuccess());
+    }).catch((error) => warning());
   }
 
-  const success = () => Alert.alert(
-      "Success",
-      "Passenger successfully unload",
-      [
-        {
-          text: "Ok",
-          onPress: () => {
-          }
-        }
-      ]
-    );
-
-  const unsuccess = () => Alert.alert(
-    "Error occured",
-    "Something went wrong doing the operation",
-    [
-      {
-        text: "Ok",
-        onPress: () => {
-        }
-      }
-    ]
-  );
 
   const unload = (file, passenger, vehicle) => {
-    fetch('http://192.168.1.12/CapstoneWeb/unload.php',
+    fetch('http://192.168.1.15/CapstoneWeb/unload.php',
     {
       method: 'POST',
       headers: {
@@ -109,8 +86,8 @@ const Passengerlist = ({ws, route}) => {
     }).then((response) => response.json())
     .then((json) => {
       ws.send("LOADCHANGES");
-      json === "Halt" ? unsuccess() : success();
-    }).catch((error) => unsuccess());
+      json === "Halt" ? warning() : success();
+    }).catch((error) => warning());
   }
 
   const unloadAlert = (file, passenger, vehicle) => Alert.alert(
