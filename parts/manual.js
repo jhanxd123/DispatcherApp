@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Text, TextInput, StyleSheet, SafeAreaView, View, TouchableOpacity, Alert } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 
-const Manualqueuing = ({warning}) => {
+const Manualqueuing = ({warning, route}) => {
   const [fname, setFname] = useState('');
   const [mname, setMname] = useState('');
   const [lname, setLname] = useState('');
@@ -165,6 +165,6 @@ const inputStyle = StyleSheet.create({
     marginBottom: 20,
     alignItems: "center"
   }
-})
+});
 
 export default Manualqueuing;

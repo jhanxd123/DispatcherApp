@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { Button, View, FlatList, SafeAreaView, StatusBar, Text, TouchableOpacity, Image, Alert } from "react-native";
 
 //This is the component that will be rendered by the flatlist.
-const Item = ({ item, pass, uq}) => (
+const Item = ({ item, pass, uq }) => (
   <View
   style={{
     padding: 20,
@@ -151,7 +151,7 @@ const PUVlist = ({navigation, ws, warning, success}) => {
     return(
       <Item
       item = {item}
-      pass = {() => props.navigation.navigate('Options', {vehicle: [item.route + "_" + item.vehicle + ".json", item.vehicle]})}
+      pass = {() => navigation.navigate('Options', {vehicle: [item.route + "_" + item.vehicle + ".json", item.vehicle]})}
       uq = {() => unqueueAlert(item.vehicle)}
       />
     );
