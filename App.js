@@ -1,5 +1,8 @@
+//1 CORINTHIANS 10:31
+//Coded by J3 team. Copyright 2021
+
 import React, {useState} from 'react';
-import { Text, Alert, Button, View, TextInput, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
+import { Text, Alert, Button, View, TextInput, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView, Image } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -9,16 +12,13 @@ import QRScanner from './parts/qrscanner';
 import PUVlist from './parts/puvlist';
 import Passengerlist from './parts/passengerlist';
 import Manualqueuing from './parts/manual';
-import Signin from './parts/signin';
-import Profile from './parts/profile';
 
 var ws;
-var profilename;
 const Stack = createNativeStackNavigator();
 
 //websocket connection
 const websocketConnection = () => {
-  ws = new WebSocket('ws://192.168.1.15:8082');
+  ws = new WebSocket('ws://192.168.1.10:8082');
 
   ws.onclose = (e) => {
     connectionError();
@@ -137,14 +137,6 @@ function puvDetails({route}){
   );
 }
 
-function showProfile(){
-  return(
-    <Profile
-      profilename = {profilename}
-    />
-  );
-}
-
 function puvs() {
   return (
     <Stack.Navigator>
@@ -161,64 +153,122 @@ function puvs() {
   );
 }
 
-const Bottomnavigation = () => (
-  <NavigationContainer>
-    <Tab.Navigator
-    screenOptions={({ route }) => ({
-      tabBarIcon: ({ focused, color, size }) => {
-        let iconName;
-
-        if (route.name === 'Scanner') {
-            iconName = 'qr-code';
-          } else if (route.name === 'PUVS') {
-            iconName = 'bus';
-          } else if (route.name === 'Manual') {
-            iconName = 'hand-left';
-          } else if (route.name === 'Profile') {
-            iconName = 'man';
-          }
-
-          // You can return any component that you like here!
-          return <Ionicons name={iconName} size={size} color={color} />;
-          },
-          tabBarActiveTintColor: 'green',
-          tabBarInactiveTintColor: 'gray',
-          })}
-    >
-      <Tab.Screen
-        name="Scanner"
-        component={scanner}
-      />
-      <Tab.Screen
-        name="PUVS"
-        component={puvs}
-        options={{
-          headerShown: false
-        }}
-      />
-      <Tab.Screen
-        name="Manual"
-        component={manualQueuing}
-        options={{
-          tabBarHideOnKeyboard: true
-        }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={showProfile}
-      />
-    </Tab.Navigator>
-  </NavigationContainer>
-)
-
 const Tab = createBottomTabNavigator();
 
-
-export default function App(props) {
+export default function App() {
 
   const [bool, setBool] = useState(false);
   const [name, setName] = useState('');
   const [pin, setPin] = useState('');
+  const [profilename, setProfilename] = useState('');
+
+  const Profile = () => (
+    <SafeAreaView
+      style = {{
+        flex: 1,
+        alignItems: "center"
+      }}
+    >
+      <Image
+        source = {require('./assets/profile.png')}
+        style = {{
+           width: 150,
+           height: 150,
+           margin: 20
+        }}
+      />
+      <Text
+        style = {{
+          fontWeight: "bold",
+          fontStyle: "italic",
+          fontSize: 25,
+        }}
+      >
+        {profilename}
+      </Text>
+      <TouchableOpacity
+        style = {{
+          marginTop: 100,
+          borderWidth: 2,
+          padding: 10,
+          width: 150,
+          alignItems: "center"
+        }}
+        onPress = {() => {
+          setBool(false);
+          storeData({name: null, pin: null});
+        }}
+      >
+        <Text
+          style = {{
+            fontWeight: "bold",
+            fontSize: 15,
+          }}
+        >
+          LOG-OUT
+        </Text>
+      </TouchableOpacity>
+    </SafeAreaView>
+  );
+
+  function showProfile () {
+    return (
+       <Profile/>
+    )
+  }
+
+  const Bottomnavigation = () => (
+    <NavigationContainer>
+      <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+
+          if (route.name === 'Scanner') {
+              iconName = 'qr-code';
+            } else if (route.name === 'PUVS') {
+              iconName = 'bus';
+            } else if (route.name === 'Manual') {
+              iconName = 'hand-left';
+            } else if (route.name === 'Profile') {
+              iconName = 'man';
+            }
+
+            // You can return any component that you like here!
+            return <Ionicons name={iconName} size={size} color={color} />;
+            },
+            tabBarActiveTintColor: 'green',
+            tabBarInactiveTintColor: 'gray',
+            })}
+      >
+        <Tab.Screen
+          name="Scanner"
+          component={scanner}
+        />
+        <Tab.Screen
+          name="PUVS"
+          component={puvs}
+          options={{
+            headerShown: false
+          }}
+        />
+        <Tab.Screen
+          name="Manual"
+          component={manualQueuing}
+          options={{
+            tabBarHideOnKeyboard: true
+          }}
+        />
+        <Tab.Screen
+          name="Profile"
+          component={showProfile}
+        />
+      </Tab.Navigator>
+    </NavigationContainer>
+  );
+
+
+
 
   ws.onmessage = (e) => {
     if (e.data === name) {
@@ -243,7 +293,7 @@ export default function App(props) {
         ]
       );
     }else{
-      fetch('http://192.168.1.15/CapstoneWeb/app_signin.php', {
+      fetch('http://192.168.1.10/CapstoneWeb/app_signin.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -257,12 +307,12 @@ export default function App(props) {
       .then((json) => {
          if(json === 'ONDUTY'){
            setBool(true);
-           profilename = name;
            let user_creds = {
              name: name,
              pin: pin
            }
-           storeData(user_creds)
+           storeData(user_creds);
+           setProfilename(name);
          }
          else if(json === 'REGISTERED'){
            info();
@@ -287,7 +337,7 @@ export default function App(props) {
   }
 
   const autoSignIn = (recent_name, recent_pin) => {
-    fetch('http://192.168.1.15/CapstoneWeb/app_signin.php', {
+    fetch('http://192.168.1.10/CapstoneWeb/app_signin.php', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -299,9 +349,9 @@ export default function App(props) {
       })
     }).then((response) => response.json())
     .then((json) => {
-      profilename = recent_name;
       if(json === 'ONDUTY'){
        setBool(true);
+       setProfilename(recent_name);
        Alert.alert(
          "Information",
          "You are signed in as " + recent_name,
@@ -331,7 +381,9 @@ export default function App(props) {
       const jsonValue = await AsyncStorage.getItem('user_info')
       if (jsonValue != null) {
         let stored_credentials  = JSON.parse(jsonValue);
-        autoSignIn(stored_credentials.name, stored_credentials.pin);
+        if (stored_credentials.name != null && stored_credentials.pin != null) {
+          autoSignIn(stored_credentials.name, stored_credentials.pin);
+        }
       }
     } catch(e) {
       unsuccess();
