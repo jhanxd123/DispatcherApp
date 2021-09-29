@@ -17,7 +17,7 @@ const QRScanner = ({ws}) => {
 
   // This function is for assigning passengers with vehicles.
   const loadPassenger = (data) => {
-    fetch('http://192.168.1.15/CapstoneWeb/scan_process.php', {
+    fetch('http://192.168.1.10/CapstoneWeb/scan_process.php', {
       method: 'POST',
       headers:{
         Accept: 'application/json',

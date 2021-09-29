@@ -53,7 +53,7 @@ const Passengerlist = ({ws, route, warning, success}) => {
 
   const retrievePassengerList = (data) => {
     console.log(data);
-    fetch('http://192.168.1.15/CapstoneWeb/retrievepassengerlist.php',
+    fetch('http://192.168.1.10/CapstoneWeb/retrievepassengerlist.php',
     {
       method: 'POST',
       headers: {
@@ -71,7 +71,7 @@ const Passengerlist = ({ws, route, warning, success}) => {
 
 
   const unload = (file, passenger, vehicle) => {
-    fetch('http://192.168.1.15/CapstoneWeb/unload.php',
+    fetch('http://192.168.1.10/CapstoneWeb/unload.php',
     {
       method: 'POST',
       headers: {
