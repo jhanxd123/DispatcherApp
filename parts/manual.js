@@ -51,7 +51,7 @@ const Manualqueuing = ({warning, route}) => {
 
   // This function is for assigning passengers with vehicles.
   const loadPassenger = (data) => {
-    fetch('http://192.168.1.10/CapstoneWeb/scan_process.php', {
+    fetch('http://192.168.1.6/CapstoneWeb/scan_process.php', {
       method: 'POST',
       headers:{
         Accept: 'application/json',
@@ -106,17 +106,17 @@ const Manualqueuing = ({warning, route}) => {
         value={cnum}
       />
       <View style={inputStyle.container}>
-      <Picker
-        style={inputStyle.picker}
-        selectedValue={dest}
-        onValueChange={(itemValue, itemIndex) => setDest(itemValue)}
-      >
-        <Picker.Item label="Pick a destination" value="" />
-        <Picker.Item label="Albuera" value="albuera" />
-        <Picker.Item label="Valencia" value="valencia" />
-        <Picker.Item label="Puertobello" value="puertobello" />
-        <Picker.Item label="Saban-Bao" value="sabang-bao" />
-      </Picker>
+        <Picker
+          style={inputStyle.picker}
+          selectedValue={dest}
+          onValueChange={(itemValue, itemIndex) => setDest(itemValue)}
+        >
+          <Picker.Item label="Pick a destination" value="" />
+          <Picker.Item label="Albuera" value="albuera" />
+          <Picker.Item label="Valencia" value="valencia" />
+          <Picker.Item label="Puertobello" value="puertobello" />
+          <Picker.Item label="Saban-Bao" value="sabang-bao" />
+        </Picker>
       </View>
       <TouchableOpacity
         style={inputStyle.pressable}
