@@ -41,13 +41,13 @@ const Passenger = ({item, unload}) => (
 );
 
 
-const Passengerlist = ({ws, route, warning, success}) => {
+const Passengerlist = ({ws, route, warning}) => {
 
   const [reply, setReply] = useState(null);
 
   ws.onmessage = (e) => {
     if(e.data === 'LOADCHANGES'){
-      retrievePassengerList();
+      retrievePassengerList(route.params.vehicle[0]);
     }
   }
 
@@ -86,7 +86,7 @@ const Passengerlist = ({ws, route, warning, success}) => {
     }).then((response) => response.json())
     .then((json) => {
       ws.send("LOADCHANGES");
-      json === "Halt" ? warning() : success();
+      json === "Halt" ? warning() : Alert.alert("Success", "Passenger successfully unloaded from the vehicle");
     }).catch((error) => warning());
   }
 
