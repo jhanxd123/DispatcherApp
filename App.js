@@ -18,7 +18,7 @@ const Stack = createNativeStackNavigator();
 
 //websocket connection
 const websocketConnection = () => {
-  ws = new WebSocket('ws://192.168.1.10:8082');
+  ws = new WebSocket('ws://192.168.1.6:8082');
 
   ws.onclose = (e) => {
     connectionError();
@@ -50,17 +50,7 @@ const connectionError = () => Alert.alert(
   ]
 );
 
-const unsuccess = () => Alert.alert(
-  "Error occured",
-  "Something went wrong doing the operation",
-  [
-    {
-      text: "Ok",
-      onPress: () => {
-      }
-    }
-  ]
-);
+const unsuccess = () => Alert.alert("Error occured", "Something went wrong doing the operation",);
 
 const success = () => Alert.alert(
   "Success",
@@ -153,10 +143,10 @@ function puvs() {
   );
 }
 
-const Tab = createBottomTabNavigator();
 
 export default function App() {
 
+  const Tab = createBottomTabNavigator();
   const [bool, setBool] = useState(false);
   const [name, setName] = useState('');
   const [pin, setPin] = useState('');
@@ -271,8 +261,7 @@ export default function App() {
 
 
   ws.onmessage = (e) => {
-    if (e.data === name) {
-      console.log(e.data)
+    if (e.data === name.trim()) {
       setBool(false);
       setName('');
       setPin('');
@@ -293,7 +282,7 @@ export default function App() {
         ]
       );
     }else{
-      fetch('http://192.168.1.10/CapstoneWeb/app_signin.php', {
+      fetch('http://192.168.1.6/CapstoneWeb/app_signin.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -337,7 +326,7 @@ export default function App() {
   }
 
   const autoSignIn = (recent_name, recent_pin) => {
-    fetch('http://192.168.1.10/CapstoneWeb/app_signin.php', {
+    fetch('http://192.168.1.6/CapstoneWeb/app_signin.php', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -404,7 +393,7 @@ export default function App() {
         style = {loginputStyle.imagecontainer}
         source = {require('./assets/background.jpeg')}
        >
-        <TextInput
+            <TextInput
               style = {loginputStyle.input}
               placeholder = "Full name"
               onChangeText = {setName}

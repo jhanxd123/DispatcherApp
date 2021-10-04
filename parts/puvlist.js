@@ -96,7 +96,7 @@ const PUVlist = ({navigation, ws, warning, success}) => {
 
   //This will retrieve the list of currently queuing vehicles from the server.
   const retrieveList = () => {
-  fetch('http://192.168.1.10/CapstoneWeb/retrievelist.php', {
+  fetch('http://192.168.1.6/CapstoneWeb/retrievelist.php', {
     method: 'POST',
     headers: {
       Accept: 'application/json',
@@ -111,7 +111,7 @@ const PUVlist = ({navigation, ws, warning, success}) => {
   }
 
   const unqueue = (data) => {
-    fetch('http://192.168.1.10/CapstoneWeb/unqueue.php', {
+    fetch('http://192.168.1.6/CapstoneWeb/unqueue.php', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
