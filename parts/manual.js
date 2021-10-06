@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Text, TextInput, StyleSheet, SafeAreaView, View, TouchableOpacity, Alert } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 
-const Manualqueuing = ({warning, route}) => {
+const Manualqueuing = ({warning, route, ws}) => {
   const [fname, setFname] = useState('');
   const [mname, setMname] = useState('');
   const [lname, setLname] = useState('');
@@ -64,6 +64,7 @@ const Manualqueuing = ({warning, route}) => {
     }).then((response) => response.json())
     .then((json) => {
       setStatus(json);
+      ws.send("LOADCHANGES");
     }).catch((error) => {
       setStatus('Server maybe down');
     });

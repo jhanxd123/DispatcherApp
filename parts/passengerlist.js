@@ -44,6 +44,7 @@ const Passenger = ({item, unload}) => (
 const Passengerlist = ({ws, route, warning}) => {
 
   const [reply, setReply] = useState(null);
+  const [ref, setRef] = useState(false);
 
   ws.onmessage = (e) => {
     if(e.data === 'LOADCHANGES'){
@@ -52,7 +53,6 @@ const Passengerlist = ({ws, route, warning}) => {
   }
 
   const retrievePassengerList = (data) => {
-    console.log(data);
     fetch('http://192.168.1.6/CapstoneWeb/retrievepassengerlist.php',
     {
       method: 'POST',
@@ -117,6 +117,16 @@ const Passengerlist = ({ws, route, warning}) => {
     );
   }
 
+  const secrefFunc = () => {
+    retrievePassengerList(route.params.vehicle[0]);
+    setRef(false);
+  }
+
+  const refreshFunc = () => {
+    setRef(true);
+    secrefFunc();
+  }
+
   retrievePassengerList(route.params.vehicle[0]);
 
   return(
@@ -125,6 +135,8 @@ const Passengerlist = ({ws, route, warning}) => {
         data = {JSON.parse(reply)}
         renderItem = {renderItem}
         extraData = {JSON.parse(reply)}
+        refreshing = {ref}
+        onRefresh = {refreshFunc}
       />
     </SafeAreaView>
   );
