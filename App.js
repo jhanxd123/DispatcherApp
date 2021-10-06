@@ -1,7 +1,7 @@
 //1 CORINTHIANS 10:31
 //Coded by J3 team. Copyright 2021
 
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { Text, Alert, Button, View, TextInput, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView, Image } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -17,23 +17,17 @@ var ws;
 const Stack = createNativeStackNavigator();
 
 //websocket connection
+
 const websocketConnection = () => {
   ws = new WebSocket('ws://192.168.1.6:8082');
 
-  ws.onclose = (e) => {
-    connectionError();
-  }
 
-  ws.onerror = (e) => {
-    console.log(e.message);
-  }
 
-    ws.onopen = () => {
-   console.log("connected");
+  ws.onopen = () => {
+    console.log("connected");
   }
 }
 
-//Calling the websocket connection function
 websocketConnection();
 
 //This function will be called on  websocket onclose event
@@ -52,47 +46,18 @@ const connectionError = () => Alert.alert(
 
 const unsuccess = () => Alert.alert("Error occured", "Something went wrong doing the operation",);
 
-const success = () => Alert.alert(
-  "Success",
-  "Vehicle successfully unqueued",
-  [
-    {
-      text: "Ok",
-      onPress: () => {
-      }
-    }
-  ]
-);
+const success = () => Alert.alert("Success", "Vehicle successfully unqueued");
 
-const loginfail = () => Alert.alert(
-  "Error",
-  "Dispatcher is not registered",
-  [
-    {
-      text: "Ok",
-      onPress: () => {
-      }
-    }
-  ]
-);
+const loginfail = () => Alert.alert("Error","Dispatcher is not registered");
 
-const info = () => Alert.alert(
-  "Information",
-  "The dispatcher is registered but is not on duty, login is restricted",
-  [
-    {
-      text: "Ok",
-      onPress: () => {
-      }
-    }
-  ]
-);
+const info = () => Alert.alert("Information","The dispatcher is registered but is not on duty, login is restricted");
 
 function manualQueuing({route}){
   return(
     <Manualqueuing
       warning = {unsuccess}
       route = {route}
+      ws = {ws}
     />
   );
 }
@@ -137,7 +102,7 @@ function puvs() {
       <Stack.Screen
       name="Options"
       component={puvDetails}
-      options={({ route, }) => ({ title: route.params.vehicle[1], })}
+      options={({ route, }) => ({ title: route.params.vehicle[1] })}
       />
     </Stack.Navigator>
   );
@@ -151,6 +116,31 @@ export default function App() {
   const [name, setName] = useState('');
   const [pin, setPin] = useState('');
   const [profilename, setProfilename] = useState('');
+
+  useEffect(() => {
+    getData();
+    websocketConnection();
+  },[]);
+
+  setInterval(() => {
+    ws.send('ping');
+  }, 3000);
+
+  ws.onmessage = (e) => {
+    if (e.data === profilename.trim()) {
+      setBool(false);
+      setName('');
+      setPin('');
+    }
+  };
+
+  ws.onclose = (e) => {
+    connectionError();
+  }
+
+  ws.onerror = (e) => {
+    connectionError();
+  }
 
   const Profile = () => (
     <SafeAreaView
@@ -257,16 +247,6 @@ export default function App() {
     </NavigationContainer>
   );
 
-
-
-
-  ws.onmessage = (e) => {
-    if (e.data === name.trim()) {
-      setBool(false);
-      setName('');
-      setPin('');
-    }
-  };
 
   const signinProcess = () => {
     if(name.trim() === ''  || pin.trim() === ''){
@@ -378,11 +358,6 @@ export default function App() {
       unsuccess();
     }
   }
-
-  (function () {
-    getData();
-  })();
-
 
   return (
     bool ? <Bottomnavigation/> :

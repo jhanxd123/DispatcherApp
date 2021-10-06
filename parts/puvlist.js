@@ -3,8 +3,9 @@ import { Button, View, FlatList, SafeAreaView, StatusBar, Text, TouchableOpacity
 
 //This is the component that will be rendered by the flatlist.
 const Item = ({ item, pass, uq }) => (
-  <View
-  style={{
+  <TouchableOpacity
+  onPress = {pass}
+  style = {{
     padding: 20,
     marginVertical: 5,
     marginHorizontal: 8,
@@ -41,14 +42,14 @@ const Item = ({ item, pass, uq }) => (
       fontWeight: "bold",
       fontStyle: "italic",
       position: "absolute",
-      right: 100,
+      right: 50,
       top: 19
     }}
     >
     {item.passengers === item.capacity ? "FULL" : item.passengers + "/" + item.capacity}
     </Text>
     <TouchableOpacity
-    onPress = {pass}
+    onPress = {uq}
     style = {{
       position: "absolute",
       right: 10,
@@ -60,36 +61,21 @@ const Item = ({ item, pass, uq }) => (
       width: 30,
       height: 30,
     }}
-    source = {require('../assets/menu.png')}
-    />
-    </TouchableOpacity>
-    <TouchableOpacity
-    onPress = {uq}
-    style = {{
-      position: "absolute",
-      right: 50,
-      top: 18,
-    }}
-    >
-    <Image
-    style = {{
-      width: 30,
-      height: 30,
-    }}
     source = {require('../assets/remove.png')}
     />
     </TouchableOpacity>
-  </View>
+  </TouchableOpacity>
 );
 
 const PUVlist = ({navigation, ws, warning, success}) => {
 
   //This variable holds the data that will be used for the flatlist component.
   const [reply, setReply] = useState(null);
+  const [ref, setRef] = useState(false);
 
   //This is an event that will be triggered if a message was received.
   ws.onmessage = (e) => {
-    if(e.data === 'PUVCHANGES'){
+    if(e.data === 'LOADCHANGES'){
       retrieveList();
     }
   }
@@ -105,7 +91,6 @@ const PUVlist = ({navigation, ws, warning, success}) => {
     }).then((response) => response.json())
     .then((json) => {
       setReply(json);
-      console.log(json);
     })
     .catch((error) => warning());
   }
@@ -122,7 +107,7 @@ const PUVlist = ({navigation, ws, warning, success}) => {
       })
     }).then((response) => response.json())
     .then((json) => {
-      ws.send('PUVCHANGES');
+      ws.send('LOADCHANGES');
       json === "Halt" ? warning() : success();
     })
     .catch((error) => warning())
@@ -134,7 +119,6 @@ const PUVlist = ({navigation, ws, warning, success}) => {
     [
       {
         text: "Cancel",
-        onPress: () => console.log("Unqueuing is cancelled"),
         style: "cancel"
       },
       {
@@ -146,6 +130,15 @@ const PUVlist = ({navigation, ws, warning, success}) => {
     ]
   );
 
+  const secrefFunc = () => {
+    retrieveList();
+    setRef(false);
+  }
+
+  const refreshFunc = () => {
+    setRef(true);
+    secrefFunc();
+  }
 
   const renderItem = ({ item }) => {
     return(
@@ -167,6 +160,8 @@ const PUVlist = ({navigation, ws, warning, success}) => {
      data = {JSON.parse(reply)}
      renderItem = {renderItem}
      extraData = {JSON.parse(reply)}
+     refreshing = {ref}
+     onRefresh = {refreshFunc}
      />
     </SafeAreaView>
   )

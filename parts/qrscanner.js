@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, TouchableOpacity} from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 
@@ -30,7 +30,7 @@ const QRScanner = ({ws}) => {
     }).then((response) => response.json())
     .then((json) => {
       setStatus(json);
-      ws.send("PUVCHANGES");
+      ws.send("LOADCHANGES");
     }).catch((error) => {
       setStatus('Server maybe down');
     });
@@ -43,6 +43,7 @@ const QRScanner = ({ws}) => {
     setBotton(true);
     setStatus('STATUS');
   }
+
 
   return(
     <QRCodeScanner
