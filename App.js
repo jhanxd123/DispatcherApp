@@ -21,8 +21,6 @@ const Stack = createNativeStackNavigator();
 const websocketConnection = () => {
   ws = new WebSocket('ws://192.168.1.6:8082');
 
-
-
   ws.onopen = () => {
     console.log("connected");
   }
@@ -116,6 +114,7 @@ export default function App() {
   const [name, setName] = useState('');
   const [pin, setPin] = useState('');
   const [profilename, setProfilename] = useState('');
+  const [ping, setPing] = useState(true);
 
   useEffect(() => {
     getData();
@@ -123,7 +122,9 @@ export default function App() {
   },[]);
 
   setInterval(() => {
-    ws.send('ping');
+    if (ping) {
+      ws.send('ping');      
+    }
   }, 3000);
 
   ws.onmessage = (e) => {
@@ -136,10 +137,12 @@ export default function App() {
 
   ws.onclose = (e) => {
     connectionError();
+    setPing(false);
   }
 
   ws.onerror = (e) => {
     connectionError();
+    setPing(false);
   }
 
   const Profile = () => (
