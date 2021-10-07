@@ -70,7 +70,7 @@ const Item = ({ item, pass, uq }) => (
 const PUVlist = ({navigation, ws, warning, success}) => {
 
   //This variable holds the data that will be used for the flatlist component.
-  const [reply, setReply] = useState(null);
+  const [reply, setReply] = useState([]);
   const [ref, setRef] = useState(false);
 
   //This is an event that will be triggered if a message was received.
@@ -90,7 +90,7 @@ const PUVlist = ({navigation, ws, warning, success}) => {
     }
     }).then((response) => response.json())
     .then((json) => {
-      setReply(json);
+      setReply(JSON.parse(json));
     })
     .catch((error) => warning());
   }
@@ -152,17 +152,34 @@ const PUVlist = ({navigation, ws, warning, success}) => {
 
   navigation.addListener('focus', () =>  {
     retrieveList();
+    console.log("hehehe");
   })
 
   return(
-    <SafeAreaView>
+    reply.length > 0 ?
+    <SafeAreaView style={{
+      flex: 1
+    }}
+    >
      <FlatList
-     data = {JSON.parse(reply)}
+     data = {reply}
      renderItem = {renderItem}
-     extraData = {JSON.parse(reply)}
+     extraData = {reply}
      refreshing = {ref}
      onRefresh = {refreshFunc}
      />
+    </SafeAreaView>
+    :
+    <SafeAreaView style = {{
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      opacity: 0.5
+    }}
+    >
+      <Text>
+        No currently queuing vehicle
+      </Text>
     </SafeAreaView>
   )
 
