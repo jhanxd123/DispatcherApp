@@ -13,34 +13,7 @@ import PUVlist from './parts/puvlist';
 import Passengerlist from './parts/passengerlist';
 import Manualqueuing from './parts/manual';
 
-var ws;
-const Stack = createNativeStackNavigator();
-
-//websocket connection
-
-const websocketConnection = () => {
-  ws = new WebSocket('ws://192.168.1.6:8082');
-
-  ws.onopen = () => {
-    console.log("connected");
-  }
-}
-
-websocketConnection();
-
-//This function will be called on  websocket onclose event
-const connectionError = () => Alert.alert(
-  "Connection error",
-  "A problem occured when connecting you with other dispatcher",
-  [
-    {
-      text: "Refresh",
-      onPress: () => {
-        websocketConnection();
-      }
-    }
-  ]
-);
+var ws = new WebSocket('ws://192.168.1.31:8082');
 
 const unsuccess = () => Alert.alert("Error occured", "Something went wrong doing the operation",);
 
@@ -50,82 +23,96 @@ const loginfail = () => Alert.alert("Error","Dispatcher is not registered");
 
 const info = () => Alert.alert("Information","The dispatcher is registered but is not on duty, login is restricted");
 
-function manualQueuing({route}){
-  return(
-    <Manualqueuing
-      warning = {unsuccess}
-      route = {route}
-      ws = {ws}
-    />
-  );
-}
-
-function scanner() {
-    return (
-      <QRScanner
-        ws = {ws}
-      />
-    );
-}
-
-function queuingPUV({navigation}){
-  return (
-      <PUVlist
-        ws = {ws}
-        navigation = {navigation}
-        warning = {unsuccess}
-        success = {success}
-      />
-  );
-}
-
-function puvDetails({route}){
-  return(
-    <Passengerlist
-      route= {route}
-      ws = {ws}
-      warning = {unsuccess}
-      success = {success}
-    />
-  );
-}
-
-function puvs() {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen
-      name="PUVs"
-      component={queuingPUV}
-      />
-      <Stack.Screen
-      name="Options"
-      component={puvDetails}
-      options={({ route, }) => ({ title: route.params.vehicle[1] })}
-      />
-    </Stack.Navigator>
-  );
-}
-
+const loginError = () => Alert.alert("Error", "A problem was encountered signing you in");
 
 export default function App() {
 
   const Tab = createBottomTabNavigator();
+  const Stack = createNativeStackNavigator();
   const [bool, setBool] = useState(false);
   const [name, setName] = useState('');
   const [pin, setPin] = useState('');
   const [profilename, setProfilename] = useState('');
-  const [ping, setPing] = useState(true);
+  const [ping, setPing] = useState(false);
 
   useEffect(() => {
     getData();
-    websocketConnection();
   },[]);
 
-  setInterval(() => {
-    if (ping) {
-      ws.send('ping');      
+  const connectionError = () => Alert.alert(
+    "Connection error",
+    "You might have to manually reload PUV and passenger list, since you cannot connect with other dispatchers",
+    [
+      {
+        text: "OK",
+        onPress: () => {
+          clearInterval(connectionInterval);
+        }
+      }
+    ]
+  );
+
+  const connectionInterval = setInterval(() => {
+    if(ping){
+      ws.send('ping');
     }
   }, 3000);
+
+  function manualQueuing({route}){
+    return(
+      <Manualqueuing
+        warning = {unsuccess}
+        route = {route}
+        ws = {ws}
+      />
+    );
+  }
+
+  function scanner() {
+      return (
+        <QRScanner
+          ws = {ws}
+        />
+      );
+  }
+
+  function queuingPUV({navigation}){
+    return (
+        <PUVlist
+          ws = {ws}
+          navigation = {navigation}
+          warning = {unsuccess}
+          success = {success}
+        />
+    );
+  }
+
+  function puvDetails({route}){
+    return(
+      <Passengerlist
+        route= {route}
+        ws = {ws}
+        warning = {unsuccess}
+        success = {success}
+      />
+    );
+  }
+
+  function puvs() {
+    return (
+      <Stack.Navigator>
+        <Stack.Screen
+        name="PUVs"
+        component={queuingPUV}
+        />
+        <Stack.Screen
+        name="Options"
+        component={puvDetails}
+        options={({ route, }) => ({ title: route.params.vehicle[1] })}
+        />
+      </Stack.Navigator>
+    );
+  }
 
   ws.onmessage = (e) => {
     if (e.data === profilename.trim()) {
@@ -135,15 +122,20 @@ export default function App() {
     }
   };
 
-  ws.onclose = (e) => {
-    connectionError();
-    setPing(false);
+  ws.onopen = () => {
+    setPing(true);
   }
 
   ws.onerror = (e) => {
     connectionError();
     setPing(false);
   }
+
+  ws.onclose = (e) => {
+    connectionError();
+    setPing(false);
+  }
+
 
   const Profile = () => (
     <SafeAreaView
@@ -250,7 +242,6 @@ export default function App() {
     </NavigationContainer>
   );
 
-
   const signinProcess = () => {
     if(name.trim() === ''  || pin.trim() === ''){
       Alert.alert(
@@ -265,37 +256,7 @@ export default function App() {
         ]
       );
     }else{
-      fetch('http://192.168.1.6/CapstoneWeb/app_signin.php', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: name,
-          pin: pin
-        })
-      }).then((response) => response.json())
-      .then((json) => {
-         if(json === 'ONDUTY'){
-           setBool(true);
-           let user_creds = {
-             name: name,
-             pin: pin
-           }
-           storeData(user_creds);
-           setProfilename(name);
-         }
-         else if(json === 'REGISTERED'){
-           info();
-         }
-         else if(json === 'UNREGISTERED'){
-           loginfail();
-         }
-         else if(json === 'HALTED'){
-           connectionError();
-         }
-      }).catch((error) => connectionError());
+      signin(name, pin)
     }
   }
 
@@ -308,19 +269,22 @@ export default function App() {
     }
   }
 
-  const autoSignIn = (recent_name, recent_pin) => {
-    fetch('http://192.168.1.6/CapstoneWeb/app_signin.php', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        name: recent_name,
-        pin: recent_pin
+//Fetch function
+
+  const autoSignIn = async (recent_name, recent_pin) => {
+    try{
+      const response = await fetch('http://192.168.1.31/CapstoneWeb/app_signin.php', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: recent_name,
+          pin: recent_pin
       })
-    }).then((response) => response.json())
-    .then((json) => {
+    });
+      const json = await response.json();
       if(json === 'ONDUTY'){
        setBool(true);
        setProfilename(recent_name);
@@ -343,10 +307,55 @@ export default function App() {
          loginfail();
        }
        else if(json === 'HALTED'){
-         connectionError();
+         loginError();
        }
-    }).catch((error) => console.error(error));
+    }
+    catch(error){
+      Alert.alert("Cannot Sign-in", "Something went wrong signing you in automatically");
+    }
   }
+
+
+
+
+  const signin = async (user_name, user_pin) => {
+    try{
+      const response = await fetch('http://192.168.1.31/CapstoneWeb/app_signin.php', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: user_name,
+          pin: user_pin
+      })
+    });
+      const json = await response.json();
+      if(json === 'ONDUTY'){
+         setBool(true);
+         let user_creds = {
+           name: name,
+           pin: pin
+         }
+         storeData(user_creds);
+         setProfilename(name);
+       }
+       else if(json === 'REGISTERED'){
+         info();
+       }
+       else if(json === 'UNREGISTERED'){
+         loginfail();
+       }
+       else if(json === 'HALTED'){
+         loginError();
+       }
+    }
+    catch(error){
+      loginError();
+    }
+  }
+
 
   const getData = async () => {
     try {
