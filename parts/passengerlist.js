@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { StyleSheet, Button, View, FlatList, SafeAreaView, StatusBar, Text, TouchableOpacity, Image, Alert } from "react-native";
+import { ActivityIndicator, StyleSheet, Button, View, FlatList, SafeAreaView, StatusBar, Text, TouchableOpacity, Image, Alert } from "react-native";
 
 const Passenger = ({item, unload}) => (
   <View
@@ -46,6 +46,7 @@ const Passengerlist = ({ws, route, warning}) => {
   const [reply, setReply] = useState([]);
   const [ref, setRef] = useState(false);
   const [mount, setMount] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   ws.onmessage = (e) => {
     if(e.data === 'LOADCHANGES'){
@@ -68,13 +69,20 @@ const Passengerlist = ({ws, route, warning}) => {
           data: data
         })
       });
-      const json = await respone.json();
+      const json = await response.json();
       setReply(JSON.parse(json));
     }catch(error){
       warning();
+    }finally{
+      setLoading(false);
     }
   }
 
+  const unloadSuccessFunction = (jason) => {
+    Alert.alert("Success", "Passenger successfully unloaded from the vehicle");
+    setReply(JSON.parse(jason));
+    ws.send('LOADCHANGES');
+  }
 
   const unload = async(file, passenger, vehicle) => {
     try{
@@ -91,11 +99,7 @@ const Passengerlist = ({ws, route, warning}) => {
         })
       });
       const json = await response.json();
-      setReply(JSON.parse(json));
-      json === "Halt" ? warning() : () => {
-        Alert.alert("Success", "Passenger successfully unloaded from the vehicle");
-        ws.send('LOADCHANGES');
-      }
+      json === "Halt" ? warning() : unloadSuccessFunction(json);
     }catch(error){
       warning();
     }
@@ -147,6 +151,16 @@ const Passengerlist = ({ws, route, warning}) => {
   },[]);
 
   return(
+    loading ?
+    <SafeAreaView style={{
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center"
+    }}
+    >
+      <ActivityIndicator size="large" color="green"/>
+    </SafeAreaView>
+    :
     <SafeAreaView>
       <FlatList
         data = {reply}

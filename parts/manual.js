@@ -117,7 +117,7 @@ const Manualqueuing = ({warning, route, ws}) => {
           <Picker.Item label="Albuera" value="albuera" />
           <Picker.Item label="Valencia" value="valencia" />
           <Picker.Item label="Puertobello" value="puertobello" />
-          <Picker.Item label="Saban-Bao" value="sabang-bao" />
+          <Picker.Item label="Sabang-Bao" value="sabangbao" />
         </Picker>
       </View>
       <TouchableOpacity
