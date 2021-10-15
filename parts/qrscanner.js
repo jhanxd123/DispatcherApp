@@ -16,24 +16,26 @@ const QRScanner = ({ws}) => {
   }
 
   // This function is for assigning passengers with vehicles.
-  const loadPassenger = (data) => {
-    fetch('http://192.168.1.6/CapstoneWeb/scan_process.php', {
-      method: 'POST',
-      headers:{
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        data: data,
-        state: "encrypted"
+  const loadPassenger = async(data) => {
+    try{
+      const response = await fetch('http://192.168.1.31/CapstoneWeb/scan_process.php', {
+        method: 'POST',
+        headers:{
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          data: data,
+          state: "encrypted"
+        })
       })
-    }).then((response) => response.json())
-    .then((json) => {
+      const json = await response.json();
       setStatus(json);
       ws.send("LOADCHANGES");
-    }).catch((error) => {
-      setStatus('Server maybe down');
-    });
+    }
+    catch(error){
+      setStatus('Something went wrong');
+    }
   }
 
 

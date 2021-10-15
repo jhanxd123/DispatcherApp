@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { StyleSheet, Button, View, FlatList, SafeAreaView, StatusBar, Text, TouchableOpacity, Image, Alert } from "react-native";
 
 const Passenger = ({item, unload}) => (
@@ -43,51 +43,62 @@ const Passenger = ({item, unload}) => (
 
 const Passengerlist = ({ws, route, warning}) => {
 
-  const [reply, setReply] = useState(null);
+  const [reply, setReply] = useState([]);
   const [ref, setRef] = useState(false);
+  const [mount, setMount] = useState(false);
 
   ws.onmessage = (e) => {
     if(e.data === 'LOADCHANGES'){
-      retrievePassengerList(route.params.vehicle[0]);
+      if(mount){
+        retrievePassengerList(route.params.vehicle[0]);
+      }
     }
   }
 
-  const retrievePassengerList = (data) => {
-    fetch('http://192.168.1.6/CapstoneWeb/retrievepassengerlist.php',
-    {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        data: data
-      })
-    }).then((response) => response.json())
-    .then((json) => {
-      setReply(json);
-    }).catch((error) => warning());
+  const retrievePassengerList = async(data) => {
+    try{
+      const response = await fetch('http://192.168.1.31/CapstoneWeb/retrievepassengerlist.php',
+      {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          data: data
+        })
+      });
+      const json = await respone.json();
+      setReply(JSON.parse(json));
+    }catch(error){
+      warning();
+    }
   }
 
 
-  const unload = (file, passenger, vehicle) => {
-    fetch('http://192.168.1.6/CapstoneWeb/unload.php',
-    {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        file: file,
-        passenger: passenger,
-        vehicle: vehicle
-      })
-    }).then((response) => response.json())
-    .then((json) => {
-      ws.send("LOADCHANGES");
-      json === "Halt" ? warning() : Alert.alert("Success", "Passenger successfully unloaded from the vehicle");
-    }).catch((error) => warning());
+  const unload = async(file, passenger, vehicle) => {
+    try{
+      const response = await fetch('http://192.168.1.31/CapstoneWeb/unload.php',{
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          file: file,
+          passenger: passenger,
+          vehicle: vehicle
+        })
+      });
+      const json = await response.json();
+      setReply(JSON.parse(json));
+      json === "Halt" ? warning() : () => {
+        Alert.alert("Success", "Passenger successfully unloaded from the vehicle");
+        ws.send('LOADCHANGES');
+      }
+    }catch(error){
+      warning();
+    }
   }
 
   const unloadAlert = (file, passenger, vehicle) => Alert.alert(
@@ -96,7 +107,6 @@ const Passengerlist = ({ws, route, warning}) => {
     [
       {
         text: "Cancel",
-        onPress: () => console.log("Unqueuing is cancelled"),
         style: "cancel"
       },
       {
@@ -127,14 +137,21 @@ const Passengerlist = ({ws, route, warning}) => {
     secrefFunc();
   }
 
-  retrievePassengerList(route.params.vehicle[0]);
+  useEffect(() => {
+    retrievePassengerList(route.params.vehicle[0]);
+    setMount(true);
+    return () => {
+      setMount(false);
+      setReply([]);
+    }
+  },[]);
 
   return(
     <SafeAreaView>
       <FlatList
-        data = {JSON.parse(reply)}
+        data = {reply}
         renderItem = {renderItem}
-        extraData = {JSON.parse(reply)}
+        extraData = {reply}
         refreshing = {ref}
         onRefresh = {refreshFunc}
       />
