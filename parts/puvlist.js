@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Button, View, FlatList, SafeAreaView, StatusBar, Text, TouchableOpacity, Image, Alert } from "react-native";
+import { ActivityIndicator, Button, View, FlatList, SafeAreaView, StatusBar, Text, TouchableOpacity, Image, Alert } from "react-native";
 
 //This is the component that will be rendered by the flatlist.
 const Item = ({ item, pass, uq }) => (
@@ -72,6 +72,7 @@ const PUVlist = ({navigation, ws, warning, success}) => {
   //This variable holds the data that will be used for the flatlist component.
   const [reply, setReply] = useState([]);
   const [ref, setRef] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [mount, setMount] = useState(false);
 
   //This is an event that will be triggered if a message was received.
@@ -96,6 +97,15 @@ const PUVlist = ({navigation, ws, warning, success}) => {
     }catch(error){
       warning();
     }
+    finally{
+      setLoading(false);
+    }
+  }
+
+  const unqueueSuccessFunction = (jason) => {
+    success();
+    setReply(JSON.parse(jason));
+    ws.send('LOADCHANGES');
   }
 
   const unqueue = async(data) => {
@@ -111,10 +121,7 @@ const PUVlist = ({navigation, ws, warning, success}) => {
         })
       });
       const json = await response.json();
-      json === "Halt" ? warning() : () => {
-        ws.send('LOADCHANGES');
-        setReply(JSON.parse(json));
-      };
+      json === "Halt" ? warning() : unqueueSuccessFunction(json);
     }catch(error){
       warning()
     }
@@ -147,6 +154,11 @@ const PUVlist = ({navigation, ws, warning, success}) => {
     secrefFunc();
   }
 
+  const refPressed = () => {
+    setLoading(true);
+    retrieveList();
+  }
+
   const renderItem = ({ item }) => {
     return(
       <Item
@@ -167,6 +179,16 @@ const PUVlist = ({navigation, ws, warning, success}) => {
   },[]);
 
   return(
+    loading ?
+    <SafeAreaView style={{
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center"
+    }}
+    >
+      <ActivityIndicator size="large" color="green"/>
+    </SafeAreaView>
+    :
     reply.length > 0 ?
     <SafeAreaView style={{
       flex: 1
@@ -192,7 +214,7 @@ const PUVlist = ({navigation, ws, warning, success}) => {
         No currently queuing vehicle
       </Text>
       <TouchableOpacity
-      onPress = {retrieveList}
+      onPress = {refPressed}
       >
         <Image
         style = {{
