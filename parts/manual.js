@@ -52,7 +52,7 @@ const Manualqueuing = ({warning, route, ws}) => {
   // This function is for assigning passengers with vehicles.
   const loadPassenger = async(data) => {
     try{
-      const response = await fetch('http://192.168.1.31/CapstoneWeb/scan_process.php', {
+      const response = await fetch('http://192.168.1.31/CapstoneWeb/processes/scan_process.php', {
         method: 'POST',
         headers:{
           Accept: 'application/json',
