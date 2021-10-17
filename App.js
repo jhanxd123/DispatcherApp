@@ -273,7 +273,7 @@ export default function App() {
 
   const autoSignIn = async (recent_name, recent_pin) => {
     try{
-      const response = await fetch('http://192.168.1.31/CapstoneWeb/app_signin.php', {
+      const response = await fetch('http://192.168.1.31/CapstoneWeb/processes/app_signin.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -320,7 +320,7 @@ export default function App() {
 
   const signin = async (user_name, user_pin) => {
     try{
-      const response = await fetch('http://192.168.1.31/CapstoneWeb/app_signin.php', {
+      const response = await fetch('http://192.168.1.31/CapstoneWeb/processes/app_signin.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
