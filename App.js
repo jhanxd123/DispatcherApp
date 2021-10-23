@@ -2,9 +2,8 @@
 //Coded by J3 team. Copyright 2021
 
 import React, {useState, useEffect} from 'react';
-import { Text, Alert, Button, View, TextInput, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView, Image } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Text, Alert, View, TextInput, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView, Image, Dimensions } from 'react-native';
+import { createBottomTabNavigator, useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,8 +11,32 @@ import QRScanner from './parts/qrscanner';
 import PUVlist from './parts/puvlist';
 import Passengerlist from './parts/passengerlist';
 import Manualqueuing from './parts/manual';
+import { NavigationContainer } from '@react-navigation/native';
+import {Card, ListItem, Button, Icon} from 'react-native-elements';
 
-var ws = new WebSocket('ws://192.168.1.31:8082');
+
+// Screen Dimension
+const { width, height } = Dimensions.get('screen');
+
+const bgTheme = {
+  colors: {
+    primary: 'transparent',
+    // background: '#0059e5',
+    background: '#00a2e8',
+    card: 'transparent',
+    text: '#FFF',
+    border: 'transparent',
+    notification: 'transparent',
+    //Color Base = color: "#77BCFF"
+    //Color Accent 1 = #FF1D36
+    //Color Accent 2 =  #E9FF1D
+    //Color Main = color: "#1E90FF"
+  },
+};
+
+
+
+var ws = new WebSocket('ws://192.168.2.31:8082');
 
 const unsuccess = () => Alert.alert("Error occured", "Something went wrong doing the operation",);
 
@@ -138,52 +161,107 @@ export default function App() {
 
 
   const Profile = () => (
-    <SafeAreaView
-      style = {{
-        flex: 1,
-        alignItems: "center"
-      }}
-    >
-      <Image
-        source = {require('./assets/profile.png')}
-        style = {{
-           width: 150,
-           height: 150,
-           margin: 20
-        }}
-      />
-      <Text
-        style = {{
-          fontWeight: "bold",
-          fontStyle: "italic",
-          fontSize: 25,
-        }}
-      >
-        {profilename}
-      </Text>
-      <TouchableOpacity
-        style = {{
-          marginTop: 100,
-          borderWidth: 2,
-          padding: 10,
-          width: 150,
-          alignItems: "center"
-        }}
-        onPress = {() => {
-          setBool(false);
-          storeData({name: null, pin: null});
-        }}
+    <ImageBackground 
+        style={{ flex: 1,}}
+        source={ require( './assets/profilebg.png')}
       >
         <Text
           style = {{
-            fontWeight: "bold",
-            fontSize: 15,
+            color: 'white',
+            fontWeight: "500",
+            fontStyle: "normal",
+            fontSize: 30,
+            paddingTop: 50,
+            paddingLeft: 35,
+            
           }}
         >
-          LOG-OUT
+          {profilename}
         </Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+        <Text
+          style = {{
+            color: 'white',
+            fontWeight: "300",
+            fontStyle: "italic",
+            fontSize: 20,
+            paddingLeft: 38,
+          }}
+        > 
+          Dispatcher
+        </Text>
+        <View
+          style={{ 
+            flexDirection: "row", 
+            flexWrap: "wrap", 
+            alignContent: "flex-end", 
+            alignItems: "flex-end", 
+            justifyContent: "flex-end",
+            paddingLeft: 350,
+            marginTop: 90,
+            marginRight: 103,
+            position: 'absolute',
+          }}
+        >
+          <Image
+          style = {{
+            width: 140,
+            height: 140,
+            borderRadius: 100,
+            borderWidth: 4,
+            borderColor: '#00a2e8',
+          }}
+            source = {require('./assets/profile.png')}
+          />
+        </View>
+        <SafeAreaView
+          style = {{
+            flex: 1,
+            alignItems: 'center',
+          }}
+        >
+          <View 
+          style={{ 
+            flex: 1,
+            justifyContent: 'flex-end',
+           }}
+          >
+            <Card>
+            <Card.Title>The City of Beautiful People</Card.Title>
+            <Card.Divider/>
+            <Card.Image 
+              style={{ resizeMode: 'stretch', width: 320}}
+              source={require('./assets/ormoc_bg.png')}>
+            </Card.Image>
+          </Card>
+            <TouchableOpacity
+              style = {{
+                backgroundColor: 'red',
+                marginTop: 100,
+                borderWidth: 0.5,
+                borderRadius: 11,
+                padding: 10,
+                width: 300,
+                alignItems: "center",
+                alignSelf: 'center',
+              }}
+              onPress = {() => {
+                setBool(false);
+                storeData({name: null, pin: null});
+              }}
+            >
+              <Text
+                style = {{
+                  fontWeight: "bold",
+                  fontSize: 15,
+                  color: 'white',
+                }}
+              >
+                LOG-OUT
+              </Text>
+            </TouchableOpacity>
+          </View>
+      </SafeAreaView>
+    </ImageBackground>
   );
 
   function showProfile () {
@@ -193,53 +271,66 @@ export default function App() {
   }
 
   const Bottomnavigation = () => (
-    <NavigationContainer>
-      <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-
-          if (route.name === 'Scanner') {
-              iconName = 'qr-code';
-            } else if (route.name === 'PUVS') {
-              iconName = 'bus';
-            } else if (route.name === 'Manual') {
-              iconName = 'hand-left';
-            } else if (route.name === 'Profile') {
-              iconName = 'man';
-            }
-
-            // You can return any component that you like here!
-            return <Ionicons name={iconName} size={size} color={color} />;
+    
+      <NavigationContainer  theme={bgTheme}>
+        <Tab.Navigator
+          screenOptions={({ route }) => ({
+            tabBarStyle: {
+              backgroundColor: '#FFF',
+              height: 56,
+              
             },
-            tabBarActiveTintColor: 'green',
-            tabBarInactiveTintColor: 'gray',
-            })}
-      >
-        <Tab.Screen
-          name="Scanner"
-          component={scanner}
-        />
-        <Tab.Screen
-          name="PUVS"
-          component={puvs}
-          options={{
-            headerShown: false
-          }}
-        />
-        <Tab.Screen
-          name="Manual"
-          component={manualQueuing}
-          options={{
-            tabBarHideOnKeyboard: true
-          }}
-        />
-        <Tab.Screen
-          name="Profile"
-          component={showProfile}
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
+            tabBarIcon: ({ focused, color, size }) => {
+              let iconName;
+
+              if (route.name === 'SCANNER') {
+                  iconName = 'qr-code';
+                } else if (route.name === 'PUVS') {
+                  iconName = 'bus';
+                } else if (route.name === 'MANUAL QUEUE') {
+                  iconName = 'hand-left';
+                } else if (route.name === 'PROFILE') {
+                  iconName = 'man';
+                }
+
+                // You can return any component that you like here!
+                return <Ionicons name={iconName} size={size} color={color} />;
+                },
+                tabBarActiveTintColor: '#2E7DE1',
+                tabBarInactiveTintColor: 'black',
+                })
+                
+          }
+        >
+          <Tab.Screen
+            name="SCANNER"
+            component={scanner}
+            options={{ 
+              headerTitleAlign: 'center',
+            }}
+          />
+          <Tab.Screen
+            name="PUVS"
+            component={puvs}
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Tab.Screen
+            name="MANUAL QUEUE"
+            component={manualQueuing}
+            options={{
+              tabBarHideOnKeyboard: true,
+              headerTitleAlign: 'center',
+            }}
+          />
+          <Tab.Screen
+            name="PROFILE"
+            component={showProfile}
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
+    
   );
 
   const signinProcess = () => {
@@ -273,7 +364,7 @@ export default function App() {
 
   const autoSignIn = async (recent_name, recent_pin) => {
     try{
-      const response = await fetch('http://192.168.1.31/CapstoneWeb/processes/app_signin.php', {
+      const response = await fetch('http://192.168.2.31/CapstoneWeb/processes/app_signin.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -320,7 +411,7 @@ export default function App() {
 
   const signin = async (user_name, user_pin) => {
     try{
-      const response = await fetch('http://192.168.1.31/CapstoneWeb/processes/app_signin.php', {
+      const response = await fetch('http://192.168.2.31/CapstoneWeb/processes/app_signin.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -372,43 +463,44 @@ export default function App() {
   }
 
   return (
+    
     bool ? <Bottomnavigation/> :
     <View
       style = {loginputStyle.container}
     >
-       <ImageBackground
-        style = {loginputStyle.imagecontainer}
-        source = {require('./assets/background.jpeg')}
-       >
-            <TextInput
-              style = {loginputStyle.input}
-              placeholder = "Full name"
-              onChangeText = {setName}
-              value = {name}
-            />
-            <TextInput
-              style = {loginputStyle.input}
-              placeholder = "4-Digit PIN"
-              textAlign = "center"
-              onChangeText = {setPin}
-              value = {pin}
-              secureTextEntry = {true}
-              maxLength = {4}
-              keyboardType = "number-pad"
-            />
-            <TouchableOpacity
-              style = {loginputStyle.logincontainer}
-              onPress = {signinProcess}
-            >
-            <Text
-              style = {{
-                fontSize: 30,
-              }}
-            >
-              LOGIN
-            </Text>
-          </TouchableOpacity>
-       </ImageBackground>
+      <ImageBackground 
+        style={loginputStyle.imagecontainer}
+        source={ require( './assets/background.jpeg')}
+      >
+        <TextInput
+          style = {loginputStyle.input}
+          placeholder = "Full name"
+          onChangeText = {setName}
+          value = {name}
+        />
+        <TextInput
+          style = {loginputStyle.input}
+          placeholder = "4-Digit PIN"
+          textAlign = "center"
+          onChangeText = {setPin}
+          value = {pin}
+          secureTextEntry = {true}
+          maxLength = {4}
+          keyboardType = "number-pad"
+        />
+        <TouchableOpacity
+          style = {loginputStyle.logincontainer}
+          onPress = {signinProcess}
+        >
+        <Text
+          style = {{
+            fontSize: 30,
+          }}
+        >
+          LOGIN
+        </Text>
+      </TouchableOpacity>
+      </ImageBackground>
     </View>
   );
 }
@@ -420,7 +512,16 @@ const loginputStyle = StyleSheet.create({
   imagecontainer: {
     flex: 1,
     justifyContent: "center",
-    padding: 10
+    width: null,
+    height: null,
+    padding: 20,
+    resizeMode: 'contain',
+  },
+  bgImage: {
+    flex: 1,
+    width: null,
+    height: null,
+    resizeMode: 'contain',
   },
   input: {
     fontSize: 25,

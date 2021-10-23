@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Text, TextInput, StyleSheet, SafeAreaView, View, TouchableOpacity, Alert } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
+import { Input, Icon } from 'react-native-elements';
 
 const Manualqueuing = ({warning, route, ws}) => {
   const [fname, setFname] = useState('');
@@ -52,7 +53,7 @@ const Manualqueuing = ({warning, route, ws}) => {
   // This function is for assigning passengers with vehicles.
   const loadPassenger = async(data) => {
     try{
-      const response = await fetch('http://192.168.1.31/CapstoneWeb/processes/scan_process.php', {
+      const response = await fetch('http://192.168.2.31/CapstoneWeb/processes/scan_process.php', {
         method: 'POST',
         headers:{
           Accept: 'application/json',
@@ -78,29 +79,77 @@ const Manualqueuing = ({warning, route, ws}) => {
           {status}
         </Text>
       </View>
-      <TextInput
-        style={inputStyle.input}
-        placeholder = "First name"
+      <Input
+        // label="First Name"
+        placeholderTextColor="#fff"
+        labelStyle={{ color:'white',  fontWeight: "300"}}
+        inputStyle={{ color:'white', fontWeight: "400", fontSize: 20 }}
+        inputContainerStyle={{ borderBottomColor: '#fff' }}
+        leftIcon={
+          <Icon
+            name='user'
+            type='feather'
+            size={22}
+            color='white'
+          />
+        }
+        placeholder = "First Name"
         returnKeyType = "next"
         onChangeText={setFname}
         value={fname}
       />
-      <TextInput
-        style={inputStyle.input}
-        placeholder = "Middle name"
+      <Input
+        // label="Middle Name"
+        placeholderTextColor="#fff"
+        labelStyle={{ color:'white', fontWeight: "300", }}
+        inputStyle={{ color:'white', fontWeight: "400", fontSize: 20 }}
+        inputContainerStyle={{ borderBottomColor: '#fff' }}
+        leftIcon={
+          <Icon
+            name='user'
+            type='feather'
+            size={22}
+            color='white'
+          />
+        }
+        placeholder = "Middle Name"
         returnKeyType = "next"
         onChangeText={setMname}
         value={mname}
       />
-      <TextInput
-        style={inputStyle.input}
-        placeholder = "Last name"
+      <Input
+        // label="Last Name"
+        placeholderTextColor="#fff"
+        labelStyle={{ color:'white', fontWeight: "300"}}
+        inputStyle={{ color:'white', fontWeight: "400", fontSize: 20 }}
+        inputContainerStyle={{ borderBottomColor: '#fff' }}
+        leftIcon={
+          <Icon
+            name='user'
+            type='feather'
+            size={22}
+            color='white'
+          />
+        }
+        placeholder = "Last Name"
         returnKeyType = "next"
         onChangeText={setLname}
         value={lname}
       />
-      <TextInput
-        style={inputStyle.input}
+      <Input
+        // label="Contact Number"
+        placeholderTextColor="#fff"
+        labelStyle={{ color:'white', fontWeight: "300" }}
+        inputStyle={{ color:'white', fontWeight: "400", fontSize: 20 }}
+        inputContainerStyle={{ borderBottomColor: '#fff' }}
+        leftIcon={
+          <Icon
+            name='hash'
+            type='feather'
+            size={22}
+            color='white'
+          />
+        }
         placeholder = "Contact number"
         keyboardType = "number-pad"
         returnKeyType = "next"
