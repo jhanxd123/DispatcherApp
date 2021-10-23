@@ -40,6 +40,30 @@ const Passenger = ({item, unload}) => (
   </View>
 );
 
+const [isVisible, setIsVisible] = useState(false);
+const list = [
+  { title: 'List Item 1' },
+  { title: 'List Item 2' },
+  {
+    title: 'Cancel',
+    containerStyle: { backgroundColor: 'red' },
+    titleStyle: { color: 'white' },
+    onPress: () => setIsVisible(false),
+  },
+];
+
+<BottomSheet
+  isVisible={isVisible}
+  containerStyle={{ backgroundColor: 'rgba(0.5, 0.25, 0, 0.2)' }}
+>
+  {list.map((l, i) => (
+    <ListItem key={i} containerStyle={l.containerStyle} onPress={l.onPress}>
+      <ListItem.Content>
+        <ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>
+      </ListItem.Content>
+    </ListItem>
+  ))}
+</BottomSheet>;
 
 const Passengerlist = ({ws, route, warning}) => {
 
@@ -58,7 +82,7 @@ const Passengerlist = ({ws, route, warning}) => {
 
   const retrievePassengerList = async(data) => {
     try{
-      const response = await fetch('http://192.168.1.31/CapstoneWeb/processes/retrievepassengerlist.php',
+      const response = await fetch('http://192.168.2.31/CapstoneWeb/processes/retrievepassengerlist.php',
       {
         method: 'POST',
         headers: {
@@ -86,7 +110,7 @@ const Passengerlist = ({ws, route, warning}) => {
 
   const unload = async(file, passenger, vehicle) => {
     try{
-      const response = await fetch('http://192.168.1.31/CapstoneWeb/processes/unload.php',{
+      const response = await fetch('http://192.168.2.31/CapstoneWeb/processes/unload.php',{
         method: 'POST',
         headers: {
           Accept: 'application/json',
