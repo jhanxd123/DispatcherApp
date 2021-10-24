@@ -1,6 +1,6 @@
 import React, { Component, useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity} from 'react-native';
-import { Button, Icon } from 'react-native-elements';
+import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native';
+import { Button, Icon} from 'react-native-elements';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 
 const QRScanner = ({ws}) => {
@@ -8,6 +8,8 @@ const QRScanner = ({ws}) => {
   const [status, setStatus] = useState('STATUS\n');
   const [botton, setBotton] = useState(true); //You stop here, Remember 1 CORINTHIANS 10:31
   const [reply, setReply] = useState('null');
+  const height  = Dimensions.get('screen').height;
+  const width  = Dimensions.get('screen').width;
 
   //This function is called upon reading the stored data in the QR  Code.
   const readingQr = (e) => {
@@ -58,10 +60,8 @@ const QRScanner = ({ws}) => {
     paddingTop: 18,
   },
   cView: {
-    width: "50%", 
-    position: 'absolute',
-    borderRadius: 100, 
-    paddingBottom: 75,
+    width: "50%",
+    paddingBottom: 130
   },
   });
 
@@ -86,14 +86,13 @@ const QRScanner = ({ws}) => {
                 size={28}
                 />
           </TouchableOpacity>
-         
         </View>
       }
       // containerStyle = {{ 
-      //   height: 500
+      //   height: height
       //  }}
       cameraStyle = {{
-        height: 675
+        height: '99.9%'
       }}
     />
   );

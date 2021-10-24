@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { ActivityIndicator, Button, View, FlatList, SafeAreaView, StatusBar, Text, TouchableOpacity, Image, Alert } from "react-native";
+import { ActivityIndicator, Button, View, FlatList, SafeAreaView, StatusBar, Text, TouchableOpacity, Image, Alert, ScrollView } from "react-native";
 
 //This is the component that will be rendered by the flatlist.
 const Item = ({ item, pass, uq }) => (
@@ -180,14 +180,16 @@ const PUVlist = ({navigation, ws, warning, success}) => {
 
   return(
     loading ?
-    <SafeAreaView style={{
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center"
-    }}
-    >
-      <ActivityIndicator size="large" color="green"/>
-    </SafeAreaView>
+    <ScrollView>
+      <SafeAreaView style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center"
+      }}
+      >
+        <ActivityIndicator size="large" color="green"/>
+      </SafeAreaView>
+    </ScrollView>
     :
     reply.length > 0 ?
     <SafeAreaView style={{

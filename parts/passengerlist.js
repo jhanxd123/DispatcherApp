@@ -40,7 +40,6 @@ const Passenger = ({item, unload}) => (
   </View>
 );
 
-
 const Passengerlist = ({ws, route, warning}) => {
 
   const [reply, setReply] = useState([]);

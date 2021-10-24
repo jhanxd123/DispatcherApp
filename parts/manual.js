@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Text, TextInput, StyleSheet, SafeAreaView, View, TouchableOpacity, Alert } from 'react-native';
+import { Text, TextInput, StyleSheet, SafeAreaView, View, TouchableOpacity, Alert, Image, ScrollView } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
-import { Input, Icon } from 'react-native-elements';
+import { Input, Icon, ListItem, Button, Card} from 'react-native-elements';
+import { black } from 'react-native-paper/lib/typescript/styles/colors';
 
 const Manualqueuing = ({warning, route, ws}) => {
   const [fname, setFname] = useState('');
@@ -73,112 +74,129 @@ const Manualqueuing = ({warning, route, ws}) => {
   }
 
   return(
-    <SafeAreaView style={{padding: 20}}>
-      <View style={inputStyle.status}>
-        <Text style={{fontSize: 20, color: "red", fontWeight: "bold", fontStyle: "italic"}}>
-          {status}
-        </Text>
-      </View>
-      <Input
-        // label="First Name"
-        placeholderTextColor="#fff"
-        labelStyle={{ color:'white',  fontWeight: "300"}}
-        inputStyle={{ color:'white', fontWeight: "400", fontSize: 20 }}
-        inputContainerStyle={{ borderBottomColor: '#fff' }}
-        leftIcon={
-          <Icon
-            name='user'
-            type='feather'
-            size={22}
-            color='white'
+    <SafeAreaView style={{ marginTop: 20 }}>
+      <ScrollView>
+        <Card 
+          containerStyle={{ 
+            marginBottom: 20,
+            borderTopEndRadius: 15,
+            borderTopStartRadius: 15,
+            borderBottomStartRadius: 15,
+            borderBottomEndRadius: 15,
+
+            }}
+          >
+          <Card.Divider/>
+          <View style={inputStyle.status}>
+            <Text style={{fontSize: 20, color: "red", fontWeight: "bold", fontStyle: "italic"}}>
+              {status}
+            </Text>
+          </View>
+          <Input
+            // label="First Name"
+            // placeholderTextColor="#fff"
+            // labelStyle={{ color:'white',  fontWeight: "300"}}
+            // inputStyle={{ color:'white', fontWeight: "400", fontSize: 20 }}
+            // inputContainerStyle={{ borderBottomColor: '#fff' }}
+            leftIcon={
+              <Icon
+                name='user'
+                type='feather'
+                size={22}
+                color='black'
+              />
+            }
+            placeholder = "First Name"
+            returnKeyType = "next"
+            onChangeText={setFname}
+            value={fname}
           />
-        }
-        placeholder = "First Name"
-        returnKeyType = "next"
-        onChangeText={setFname}
-        value={fname}
-      />
-      <Input
-        // label="Middle Name"
-        placeholderTextColor="#fff"
-        labelStyle={{ color:'white', fontWeight: "300", }}
-        inputStyle={{ color:'white', fontWeight: "400", fontSize: 20 }}
-        inputContainerStyle={{ borderBottomColor: '#fff' }}
-        leftIcon={
-          <Icon
-            name='user'
-            type='feather'
-            size={22}
-            color='white'
+          <Input
+            // label="Middle Name"
+            // placeholderTextColor="#fff"
+            // labelStyle={{ color:'white', fontWeight: "300", }}
+            // inputStyle={{ color:'white', fontWeight: "400", fontSize: 20 }}
+            // inputContainerStyle={{ borderBottomColor: '#fff' }}
+            leftIcon={
+              <Icon
+                name='user'
+                type='feather'
+                size={22}
+                color='black'
+              />
+            }
+            placeholder = "Middle Name"
+            returnKeyType = "next"
+            onChangeText={setMname}
+            value={mname}
           />
-        }
-        placeholder = "Middle Name"
-        returnKeyType = "next"
-        onChangeText={setMname}
-        value={mname}
-      />
-      <Input
-        // label="Last Name"
-        placeholderTextColor="#fff"
-        labelStyle={{ color:'white', fontWeight: "300"}}
-        inputStyle={{ color:'white', fontWeight: "400", fontSize: 20 }}
-        inputContainerStyle={{ borderBottomColor: '#fff' }}
-        leftIcon={
-          <Icon
-            name='user'
-            type='feather'
-            size={22}
-            color='white'
+          <Input
+            // label="Last Name"
+            // placeholderTextColor="#fff"
+            // labelStyle={{ color:'white', fontWeight: "300"}}
+            // inputStyle={{ color:'white', fontWeight: "400", fontSize: 20 }}
+            // inputContainerStyle={{ borderBottomColor: '#fff' }}
+            leftIcon={
+              <Icon
+                name='user'
+                type='feather'
+                size={22}
+                color='black'
+              />
+            }
+            placeholder = "Last Name"
+            returnKeyType = "next"
+            onChangeText={setLname}
+            value={lname}
           />
-        }
-        placeholder = "Last Name"
-        returnKeyType = "next"
-        onChangeText={setLname}
-        value={lname}
-      />
-      <Input
-        // label="Contact Number"
-        placeholderTextColor="#fff"
-        labelStyle={{ color:'white', fontWeight: "300" }}
-        inputStyle={{ color:'white', fontWeight: "400", fontSize: 20 }}
-        inputContainerStyle={{ borderBottomColor: '#fff' }}
-        leftIcon={
-          <Icon
-            name='hash'
-            type='feather'
-            size={22}
-            color='white'
+          <Input
+            // label="Contact Number"
+            // placeholderTextColor="#fff"
+            // labelStyle={{ color:'white', fontWeight: "300" }}
+            // inputStyle={{ color:'white', fontWeight: "400", fontSize: 20 }}
+            // inputContainerStyle={{ borderBottomColor: '#fff' }}
+            leftIcon={
+              <Icon
+                name='hash'
+                type='feather'
+                size={22}
+                color='black'
+              />
+            }
+            placeholder = "Contact number"
+            keyboardType = "number-pad"
+            returnKeyType = "next"
+            onChangeText={setCnum}
+            value={cnum}
           />
-        }
-        placeholder = "Contact number"
-        keyboardType = "number-pad"
-        returnKeyType = "next"
-        onChangeText={setCnum}
-        value={cnum}
-      />
-      <View style={inputStyle.container}>
-        <Picker
-          style={inputStyle.picker}
-          selectedValue={dest}
-          onValueChange={(itemValue, itemIndex) => setDest(itemValue)}
-        >
-          <Picker.Item label="Pick a destination" value="" />
-          <Picker.Item label="Albuera" value="albuera" />
-          <Picker.Item label="Valencia" value="valencia" />
-          <Picker.Item label="Puertobello" value="puertobello" />
-          <Picker.Item label="Sabang-Bao" value="sabangbao" />
-        </Picker>
-      </View>
-      <TouchableOpacity
-        style={inputStyle.pressable}
-        onPress={validate}
-      >
-        <Text
-          style={{fontSize: 25}}
-        >
-        LOAD PASSENGER
-        </Text>
-      </TouchableOpacity>
+          <View style={inputStyle.container}>
+              <Picker
+                style={inputStyle.picker}
+                selectedValue={dest}
+                onValueChange={(itemValue, itemIndex) => setDest(itemValue)}
+              >
+                <Picker.Item label="Pick a destination" value="" />
+                <Picker.Item label="Albuera" value="albuera" />
+                <Picker.Item label="Valencia" value="valencia" />
+                <Picker.Item label="Puertobello" value="puertobello" />
+                <Picker.Item label="Sabang-Bao" value="sabangbao" />
+              </Picker>
+            </View>
+            <Button
+              // icon={<Icon name='add' color='#ffffff' />}
+              buttonStyle={{
+                borderRadius: 2, 
+                marginLeft: 0, 
+                marginRight: 0, 
+                marginBottom: 0,
+                backgroundColor: '#f7dc6f',
+              }}
+              title='LOAD PASSENGER' 
+              titleStyle={{ color: 'black' }}
+              onPress={validate}  
+            />
+        </Card>
+      </ScrollView>
     </SafeAreaView>
   );
 }

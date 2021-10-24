@@ -12,7 +12,8 @@ import PUVlist from './parts/puvlist';
 import Passengerlist from './parts/passengerlist';
 import Manualqueuing from './parts/manual';
 import { NavigationContainer } from '@react-navigation/native';
-import {Card, ListItem, Button, Icon} from 'react-native-elements';
+import {Card, Input, Button, Icon, ListItem} from 'react-native-elements';
+import { white } from 'react-native-paper/lib/typescript/styles/colors';
 
 
 // Screen Dimension
@@ -220,10 +221,10 @@ export default function App() {
           }}
         >
           <View 
-          style={{ 
-            flex: 1,
-            justifyContent: 'flex-end',
-           }}
+            style={{ 
+              flex: 1,
+              justifyContent: 'flex-end',
+            }}
           >
             <Card>
             <Card.Title>The City of Beautiful People</Card.Title>
@@ -236,11 +237,11 @@ export default function App() {
             <TouchableOpacity
               style = {{
                 backgroundColor: 'red',
-                marginTop: 100,
+                marginTop: 35,
                 borderWidth: 0.5,
-                borderRadius: 11,
+                borderRadius: 5,
                 padding: 10,
-                width: 300,
+                width: 350,
                 alignItems: "center",
                 alignSelf: 'center',
               }}
@@ -470,36 +471,82 @@ export default function App() {
     >
       <ImageBackground 
         style={loginputStyle.imagecontainer}
-        source={ require( './assets/background.jpeg')}
+        source={ require('./assets/gradient_bg.png')}
       >
-        <TextInput
-          style = {loginputStyle.input}
-          placeholder = "Full name"
+        <Image
+          style = {{
+            // width: 140,
+            // height: 140,
+            width: 360,
+            height: 140,
+            borderRadius: 10,
+            borderWidth: 4,
+            borderColor: '#00a2e8',
+            alignSelf: 'center'
+          }}
+            source = {require('./assets/banner.jpg')}
+          />
+        <Card
+          containerStyle={{ 
+            borderTopLeftRadius: 15, 
+            borderTopRightRadius: 15, 
+            borderBottomLeftRadius: 15,
+            borderBottomRightRadius: 15,
+          }}
+        >
+          <Card.Title>Dispatcher</Card.Title>
+          <Card.Divider/>
+          <Input
+          // style = {loginputStyle.input}
+          label="Full Name"
+          labelStyle={{ color:'black', fontWeight: '300' }}
+          inputStyle={{ color:'black', fontSize: 22, fontWeight: '400' }}
+          inputContainerStyle={{ 
+            borderBottomColor: 'black'
+           }}
+          leftIcon={
+            <Icon
+            name='user'
+            type='feather'
+            size={24}
+            color='black'
+          />
+           }
           onChangeText = {setName}
           value = {name}
         />
-        <TextInput
-          style = {loginputStyle.input}
-          placeholder = "4-Digit PIN"
-          textAlign = "center"
+        <Input
+          // style = {loginputStyle.input}
+          label="4-Digit PIN"
+          labelStyle={{ color:'black', fontWeight: '300' }}
+          inputStyle={{ color:'black', fontSize: 22, fontWeight: '400' }}
+          inputContainerStyle={{ 
+            borderBottomColor: 'black'
+           }}
+           leftIcon={
+            <Icon
+            name='hash'
+            type='feather'
+            size={24}
+            color='black'
+          />
+           }
           onChangeText = {setPin}
           value = {pin}
           secureTextEntry = {true}
           maxLength = {4}
           keyboardType = "number-pad"
         />
-        <TouchableOpacity
-          style = {loginputStyle.logincontainer}
-          onPress = {signinProcess}
-        >
-        <Text
-          style = {{
-            fontSize: 30,
-          }}
-        >
-          LOGIN
-        </Text>
-      </TouchableOpacity>
+            <Text style={{marginBottom: 10, textAlign: 'center'}}>
+            “Smile, it's free therapy.”
+            </Text>
+            <Button
+              // icon={<Icon name='chevron-right' color='#ffffff' />}
+              buttonStyle={{borderRadius: 2, marginLeft: 0, marginRight: 0, marginBottom: 0}}
+              title='LOGIN'
+              onPress = {signinProcess}
+              />
+        </Card>
       </ImageBackground>
     </View>
   );
@@ -512,38 +559,6 @@ const loginputStyle = StyleSheet.create({
   imagecontainer: {
     flex: 1,
     justifyContent: "center",
-    width: null,
-    height: null,
-    padding: 20,
     resizeMode: 'contain',
   },
-  bgImage: {
-    flex: 1,
-    width: null,
-    height: null,
-    resizeMode: 'contain',
-  },
-  input: {
-    fontSize: 25,
-    borderWidth: 2,
-    borderRadius: 10,
-    height: 60,
-    padding: 10,
-    marginBottom: 20,
-    borderColor: "#d6dbdf",
-    opacity: 0.8,
-    backgroundColor: "#34495e",
-    color: "white"
-  },
-  logincontainer: {
-    height: 50,
-    width: 200,
-    borderRadius: 10,
-    borderWidth: 2,
-    alignItems: "center",
-    alignSelf: "center",
-    borderColor: "#f1c40f",
-    backgroundColor: "#27ae60",
-    opacity: 0.8
-  }
 });
