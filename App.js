@@ -37,7 +37,7 @@ const bgTheme = {
 
 
 
-var ws = new WebSocket('ws://192.168.2.31:8082');
+var ws = new WebSocket('ws://192.168.1.21:8082');
 
 const unsuccess = () => Alert.alert("Error occured", "Something went wrong doing the operation",);
 
@@ -162,7 +162,7 @@ export default function App() {
 
 
   const Profile = () => (
-    <ImageBackground 
+    <ImageBackground
         style={{ flex: 1,}}
         source={ require( './assets/profilebg.png')}
       >
@@ -174,7 +174,7 @@ export default function App() {
             fontSize: 30,
             paddingTop: 50,
             paddingLeft: 35,
-            
+
           }}
         >
           {profilename}
@@ -187,15 +187,15 @@ export default function App() {
             fontSize: 20,
             paddingLeft: 38,
           }}
-        > 
+        >
           Dispatcher
         </Text>
         <View
-          style={{ 
-            flexDirection: "row", 
-            flexWrap: "wrap", 
-            alignContent: "flex-end", 
-            alignItems: "flex-end", 
+          style={{
+            flexDirection: "row",
+            flexWrap: "wrap",
+            alignContent: "flex-end",
+            alignItems: "flex-end",
             justifyContent: "flex-end",
             paddingLeft: 350,
             marginTop: 90,
@@ -220,8 +220,8 @@ export default function App() {
             alignItems: 'center',
           }}
         >
-          <View 
-            style={{ 
+          <View
+            style={{
               flex: 1,
               justifyContent: 'flex-end',
             }}
@@ -229,7 +229,7 @@ export default function App() {
             <Card>
             <Card.Title>The City of Beautiful People</Card.Title>
             <Card.Divider/>
-            <Card.Image 
+            <Card.Image
               style={{ resizeMode: 'stretch', width: 320}}
               source={require('./assets/ormoc_bg.png')}>
             </Card.Image>
@@ -272,14 +272,14 @@ export default function App() {
   }
 
   const Bottomnavigation = () => (
-    
+
       <NavigationContainer  theme={bgTheme}>
         <Tab.Navigator
           screenOptions={({ route }) => ({
             tabBarStyle: {
               backgroundColor: '#FFF',
               height: 56,
-              
+
             },
             tabBarIcon: ({ focused, color, size }) => {
               let iconName;
@@ -300,13 +300,13 @@ export default function App() {
                 tabBarActiveTintColor: '#2E7DE1',
                 tabBarInactiveTintColor: 'black',
                 })
-                
+
           }
         >
           <Tab.Screen
             name="SCANNER"
             component={scanner}
-            options={{ 
+            options={{
               headerTitleAlign: 'center',
             }}
           />
@@ -331,7 +331,7 @@ export default function App() {
           />
         </Tab.Navigator>
       </NavigationContainer>
-    
+
   );
 
   const signinProcess = () => {
@@ -365,7 +365,7 @@ export default function App() {
 
   const autoSignIn = async (recent_name, recent_pin) => {
     try{
-      const response = await fetch('http://192.168.2.31/CapstoneWeb/processes/app_signin.php', {
+      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/app_signin.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -412,7 +412,7 @@ export default function App() {
 
   const signin = async (user_name, user_pin) => {
     try{
-      const response = await fetch('http://192.168.2.31/CapstoneWeb/processes/app_signin.php', {
+      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/app_signin.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -464,12 +464,12 @@ export default function App() {
   }
 
   return (
-    
+
     bool ? <Bottomnavigation/> :
     <View
       style = {loginputStyle.container}
     >
-      <ImageBackground 
+      <ImageBackground
         style={loginputStyle.imagecontainer}
         source={ require('./assets/gradient_bg.png')}
       >
@@ -487,9 +487,9 @@ export default function App() {
             source = {require('./assets/banner.jpg')}
           />
         <Card
-          containerStyle={{ 
-            borderTopLeftRadius: 15, 
-            borderTopRightRadius: 15, 
+          containerStyle={{
+            borderTopLeftRadius: 15,
+            borderTopRightRadius: 15,
             borderBottomLeftRadius: 15,
             borderBottomRightRadius: 15,
           }}
@@ -501,7 +501,7 @@ export default function App() {
           label="Full Name"
           labelStyle={{ color:'black', fontWeight: '300' }}
           inputStyle={{ color:'black', fontSize: 22, fontWeight: '400' }}
-          inputContainerStyle={{ 
+          inputContainerStyle={{
             borderBottomColor: 'black'
            }}
           leftIcon={
@@ -520,7 +520,7 @@ export default function App() {
           label="4-Digit PIN"
           labelStyle={{ color:'black', fontWeight: '300' }}
           inputStyle={{ color:'black', fontSize: 22, fontWeight: '400' }}
-          inputContainerStyle={{ 
+          inputContainerStyle={{
             borderBottomColor: 'black'
            }}
            leftIcon={

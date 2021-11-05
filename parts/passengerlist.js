@@ -13,14 +13,44 @@ const Passenger = ({item, unload}) => (
     borderRadius: 5
   }}
   >
-    <Text
-    style={{
-      fontSize: 20,
-      fontWeight: "bold"
+    {
+      item.Name == '' && item.Companion == '' ?
+      <Text style={{
+        fontSize: 20,
+        fontWeight: "bold",
+        color: "#C0392B"
+      }}>
+        Vacant seat
+      </Text>
+      :
+      item.Companion == "true" ?
+      <Text style={{
+        fontSize: 20,
+        fontWeight: "bold",
+        color: "white"
+      }}>
+      {item.Name}
+      </Text>
+      :
+      <Text style={{
+        fontSize: 20,
+        fontWeight: "bold",
+      }}>
+      {item.Name}
+      </Text>
+    }
+    {
+      item.Name == '' && item.Companion == '' ?
+    <Text style={{
+      position: "absolute",
+      right: 22,
+      top: 11,
+      fontSize: 30
     }}
     >
-      {item == '' ? 'Vacant seat' : item}
+    +
     </Text>
+    :
     <TouchableOpacity
     onPress = {unload}
     style={{
@@ -34,9 +64,10 @@ const Passenger = ({item, unload}) => (
         width: 40,
         height: 40,
       }}
-      source = {item == '' ? null : require('../assets/unload.png')}
+      source = {item.Name == '' && item.Companion == '' ? null : require('../assets/unload.png')}
       />
     </TouchableOpacity>
+    }
   </View>
 );
 
@@ -57,7 +88,7 @@ const Passengerlist = ({ws, route, warning}) => {
 
   const retrievePassengerList = async(data) => {
     try{
-      const response = await fetch('http://192.168.2.31/CapstoneWeb/processes/retrievepassengerlist.php',
+      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/retrievepassengerlist.php',
       {
         method: 'POST',
         headers: {
@@ -85,7 +116,7 @@ const Passengerlist = ({ws, route, warning}) => {
 
   const unload = async(file, passenger, vehicle) => {
     try{
-      const response = await fetch('http://192.168.2.31/CapstoneWeb/processes/unload.php',{
+      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/unload.php',{
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -125,7 +156,7 @@ const Passengerlist = ({ws, route, warning}) => {
     return(
       <Passenger
       item = {item}
-      unload = {() => {unloadAlert(route.params.vehicle[0], item, route.params.vehicle[1])}}
+      unload = {() => {unloadAlert(route.params.vehicle[0], item.Name, route.params.vehicle[1])}}
       />
     );
   }

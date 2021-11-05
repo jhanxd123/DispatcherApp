@@ -10,7 +10,19 @@ const Manualqueuing = ({warning, route, ws}) => {
   const [lname, setLname] = useState('');
   const [cnum, setCnum] = useState('');
   const [dest, setDest] = useState('');
+  const [companion, setCompanion] = useState('false');
   const [status, setStatus] = useState('STATUS');
+
+
+  function generateString(length) {
+    const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    const charactersLength = characters.length;
+    for ( let i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  }
 
    const reminder = () => Alert.alert(
      "Missing Information",
@@ -30,31 +42,26 @@ const Manualqueuing = ({warning, route, ws}) => {
     setLname('');
     setCnum('');
     setDest('');
+    setCompanion('');
     setStatus('STATUS');
   }
 
   const validate = () => {
-     if(fname.trim() === '' || mname.trim()  === '' || lname.trim() === '' || cnum.trim() === '' || dest.trim() === ''){
+     if(fname.trim() === '' || mname.trim()  === '' || lname.trim() === '' || cnum.trim() === '' || dest.trim() === '' || companion.trim() === ''){
        reminder();
      }
      else{
-        loadPassenger(JSON.stringify(
-          {
-            type: "passenger",
-            name: fname.trim() + " " + mname.trim() + " " + lname.trim(),
-            cnum: cnum.trim(),
-            destination: dest.trim()
-          }
-        )
-      );
+       let name = fname.trim() + " " + mname.trim() + " " + lname.trim();
+       loadPassenger(generateString(5), name, dest, companion);
        reset();
      }
   }
 
   // This function is for assigning passengers with vehicles.
-  const loadPassenger = async(data) => {
+  const loadPassenger = async(data, name, destination, comp) => {
+    console.log(data + name + destination + comp);
     try{
-      const response = await fetch('http://192.168.2.31/CapstoneWeb/processes/scan_process.php', {
+      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/dispatcher_manual_queue.php', {
         method: 'POST',
         headers:{
           Accept: 'application/json',
@@ -62,22 +69,29 @@ const Manualqueuing = ({warning, route, ws}) => {
         },
         body: JSON.stringify({
           data: data,
-          state: "plain"
+          name: name,
+          destination: destination,
+          companion: comp
         })
       });
       const json = await response.json();
-      setStatus(json);
+      if(json == "error"){
+        setStatus("Something went wrong");
+      }else{
+        setStatus(json);
+      }
       ws.send("LOADCHANGES");
     }catch(error){
-      setStatus('Something went wrong')
+      setStatus('Something went wrong');
+      console.log(error);
     }
   }
 
   return(
     <SafeAreaView style={{ marginTop: 20 }}>
       <ScrollView>
-        <Card 
-          containerStyle={{ 
+        <Card
+          containerStyle={{
             marginBottom: 20,
             borderTopEndRadius: 15,
             borderTopStartRadius: 15,
@@ -182,18 +196,59 @@ const Manualqueuing = ({warning, route, ws}) => {
                 <Picker.Item label="Sabang-Bao" value="sabangbao" />
               </Picker>
             </View>
+            <View style={{
+              flexDirection: "row",
+              justifyContent: "space-around",
+              marginBottom: 30
+            }}
+            >
+              <TouchableOpacity style={{
+                  height: 35,
+                  paddingLeft: 8,
+                  paddingRight: 8,
+                  borderRadius: 5,
+                  backgroundColor: "#f1d219",
+                  justifyContent: "center",
+                }}
+                onPress={() => setCompanion("true")}
+              >
+                <Text style={{
+                  color: "white",
+                  fontWeight: "bold"
+                }}>
+                  With Companion
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{
+                height: 35,
+                paddingLeft: 8,
+                paddingRight: 8,
+                borderRadius: 5,
+                backgroundColor: "#f1d219",
+                justifyContent: "center",
+              }}
+              onPress={() => setCompanion("false")}
+              >
+                <Text style={{
+                  color: "white",
+                  fontWeight: "bold"
+                }}>
+                  No Companion
+                </Text>
+              </TouchableOpacity>
+            </View>
             <Button
               // icon={<Icon name='add' color='#ffffff' />}
               buttonStyle={{
-                borderRadius: 2, 
-                marginLeft: 0, 
-                marginRight: 0, 
+                borderRadius: 2,
+                marginLeft: 0,
+                marginRight: 0,
                 marginBottom: 0,
                 backgroundColor: '#f7dc6f',
               }}
-              title='LOAD PASSENGER' 
+              title='LOAD PASSENGER'
               titleStyle={{ color: 'black' }}
-              onPress={validate}  
+              onPress={validate}
             />
         </Card>
       </ScrollView>
@@ -220,7 +275,7 @@ const inputStyle = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#aeb6bf",
     borderRadius: 10,
-    marginBottom: 40
+    marginBottom: 10
   },
   pressable:{
     backgroundColor: "#f7dc6f",
