@@ -335,10 +335,10 @@ export default function App() {
   );
 
   const signinProcess = () => {
-    if(name.trim() === ''  || pin.trim() === ''){
+    if(pin.trim() === ''){
       Alert.alert(
         "Error",
-        "Please fill in all the field",
+        "Please enter your PIN",
         [
           {
             text: "Ok",
@@ -348,7 +348,7 @@ export default function App() {
         ]
       );
     }else{
-      signin(name, pin)
+      signin(pin)
     }
   }
 
@@ -410,7 +410,7 @@ export default function App() {
 
 
 
-  const signin = async (user_name, user_pin) => {
+  const signin = async (user_pin) => {
     try{
       const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/app_signin.php', {
         method: 'POST',
@@ -419,27 +419,25 @@ export default function App() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          name: user_name,
           pin: user_pin
       })
     });
       const json = await response.json();
-      if(json === 'ONDUTY'){
+      if(json === 'onduty'){
          setBool(true);
          let user_creds = {
-           name: name,
            pin: pin
          }
          storeData(user_creds);
          setProfilename(name);
        }
-       else if(json === 'REGISTERED'){
+       else if(json === 'registered'){
          info();
        }
-       else if(json === 'UNREGISTERED'){
+       else if(json === 'unregistered'){
          loginfail();
        }
-       else if(json === 'HALTED'){
+       else if(json === 'error'){
          loginError();
        }
     }
@@ -496,41 +494,15 @@ export default function App() {
         >
           <Card.Title>Dispatcher</Card.Title>
           <Card.Divider/>
-          <Input
-          // style = {loginputStyle.input}
-          label="Full Name"
-          labelStyle={{ color:'black', fontWeight: '300' }}
-          inputStyle={{ color:'black', fontSize: 22, fontWeight: '400' }}
-          inputContainerStyle={{
-            borderBottomColor: 'black'
-           }}
-          leftIcon={
-            <Icon
-            name='user'
-            type='feather'
-            size={24}
-            color='black'
-          />
-           }
-          onChangeText = {setName}
-          value = {name}
-        />
+
         <Input
           // style = {loginputStyle.input}
           label="4-Digit PIN"
           labelStyle={{ color:'black', fontWeight: '300' }}
-          inputStyle={{ color:'black', fontSize: 22, fontWeight: '400' }}
+          inputStyle={{ color:'black', fontSize: 22, fontWeight: '400', textAlign: 'center' }}
           inputContainerStyle={{
             borderBottomColor: 'black'
            }}
-           leftIcon={
-            <Icon
-            name='hash'
-            type='feather'
-            size={24}
-            color='black'
-          />
-           }
           onChangeText = {setPin}
           value = {pin}
           secureTextEntry = {true}
