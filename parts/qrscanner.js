@@ -42,7 +42,7 @@ const QRScanner = ({ws}) => {
 
   const checkPassengerStatus = async(data, destination, comp) => {
     try{
-      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/dispatcher_scan_process.php', {
+      const response = await fetch('http://119.92.152.243/processes/dispatcher_scan_process.php', {
         method: 'POST',
         headers:{
           Accept: 'application/json',
@@ -108,7 +108,7 @@ const QRScanner = ({ws}) => {
 
   const loadPassenger = async(data, destination, companion) => {
     try{
-      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/dispatcher_load_passenger.php', {
+      const response = await fetch('http://119.92.152.243/processes/dispatcher_load_passenger.php', {
         method: "POST",
         headers:{
           Accept: 'application/json',
@@ -136,7 +136,7 @@ const QRScanner = ({ws}) => {
 
   const removePassenger = async(data, status) => {
     try{
-      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/dispatcher_remove_passenger.php',{
+      const response = await fetch('http://119.92.152.243/processes/dispatcher_remove_passenger.php',{
         method: "POST",
         headers:{
           Accept: 'application/json',
@@ -179,7 +179,7 @@ const QRScanner = ({ws}) => {
 
   const queueVehicle = async(data) => {
     try{
-      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/dispatcher_queue_vehicles.php',{
+      const response = await fetch('http://119.92.152.243/processes/dispatcher_queue_vehicles.php',{
         method: 'POST',
         headers:{
           Accept: 'application/json',
@@ -210,7 +210,7 @@ const QRScanner = ({ws}) => {
       let fullname = fname.trim() + ' ' + mname.trim() + ' ' + lname.trim();
       let contact = cnum;
       try{
-        const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/passenger_register_qr.php', {
+        const response = await fetch('http://119.92.152.243/processes/passenger_register_qr.php', {
           method: 'POST',
           headers:{
             Accept: 'application/json',

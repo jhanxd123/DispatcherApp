@@ -37,7 +37,7 @@ const bgTheme = {
 
 
 
-var ws = new WebSocket('ws://192.168.1.21:8082');
+var ws = new WebSocket('ws://119.92.152.243/processes');
 
 const unsuccess = () => Alert.alert("Error occured", "Something went wrong doing the operation",);
 
@@ -365,7 +365,7 @@ export default function App() {
 
   const autoSignIn = async (recent_name, recent_pin) => {
     try{
-      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/app_signin.php', {
+      const response = await fetch('http://119.92.152.243/processes/app_signin.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -412,7 +412,7 @@ export default function App() {
 
   const signin = async (user_pin) => {
     try{
-      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/app_signin.php', {
+      const response = await fetch('http://119.92.152.243/processes/app_signin.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',

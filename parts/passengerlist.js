@@ -88,7 +88,7 @@ const Passengerlist = ({ws, route, warning}) => {
 
   const retrievePassengerList = async(data) => {
     try{
-      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/retrievepassengerlist.php',
+      const response = await fetch('http://119.92.152.243/processes/retrievepassengerlist.php',
       {
         method: 'POST',
         headers: {
@@ -116,7 +116,7 @@ const Passengerlist = ({ws, route, warning}) => {
 
   const unload = async(file, passenger, vehicle) => {
     try{
-      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/unload.php',{
+      const response = await fetch('http://119.92.152.243/processes/unload.php',{
         method: 'POST',
         headers: {
           Accept: 'application/json',
