@@ -1,10 +1,9 @@
 //1 CORINTHIANS 10:31
 //Coded by J3 team. Copyright 2021
-
 import React, {useState, useEffect} from 'react';
-import { Text, Alert, View, TextInput, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView, Image, Dimensions } from 'react-native';
+import {Text, Alert, View, TextInput, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView, Image, Dimensions, Button} from 'react-native';
 import { createBottomTabNavigator, useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import {Ionicons} from 'react-native-vector-icons/Ionicons';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import QRScanner from './parts/qrscanner';
@@ -12,12 +11,13 @@ import PUVlist from './parts/puvlist';
 import Passengerlist from './parts/passengerlist';
 import Manualqueuing from './parts/manual';
 import { NavigationContainer } from '@react-navigation/native';
-import {Card, Input, Button, Icon, ListItem} from 'react-native-elements';
+import {Card, ListItem} from 'react-native-elements';
 import { white } from 'react-native-paper/lib/typescript/styles/colors';
 
 
 // Screen Dimension
-const { width, height } = Dimensions.get('screen');
+const width = Dimensions.get('screen').width;
+const height = Dimensions.get('screen').height;
 
 const bgTheme = {
   colors: {
@@ -55,7 +55,6 @@ export default function App() {
   const Stack = createNativeStackNavigator();
   const [bool, setBool] = useState(false);
   const [name, setName] = useState('');
-  const [pin, setPin] = useState('');
   const [profilename, setProfilename] = useState('');
   const [ping, setPing] = useState(false);
 
@@ -272,18 +271,15 @@ export default function App() {
   }
 
   const Bottomnavigation = () => (
-
       <NavigationContainer  theme={bgTheme}>
         <Tab.Navigator
           screenOptions={({ route }) => ({
             tabBarStyle: {
               backgroundColor: '#FFF',
               height: 56,
-
             },
             tabBarIcon: ({ focused, color, size }) => {
               let iconName;
-
               if (route.name === 'SCANNER') {
                   iconName = 'qr-code';
                 } else if (route.name === 'PUVS') {
@@ -294,13 +290,12 @@ export default function App() {
                   iconName = 'man';
                 }
 
-                // You can return any component that you like here!
-                return <Ionicons name={iconName} size={size} color={color} />;
-                },
+
+                return <Ionicons name={iconName} size={size} color={color}/>;
+              },
                 tabBarActiveTintColor: '#2E7DE1',
                 tabBarInactiveTintColor: 'black',
-                })
-
+              })
           }
         >
           <Tab.Screen
@@ -331,32 +326,59 @@ export default function App() {
           />
         </Tab.Navigator>
       </NavigationContainer>
-
   );
 
-  const signinProcess = () => {
-    if(pin.trim() === ''){
-      Alert.alert(
-        "Error",
-        "Please enter your PIN",
-        [
-          {
-            text: "Ok",
-            onPress: () => {
-            }
-          }
-        ]
-      );
-    }else{
-      signin(pin)
-    }
-  }
+  const Intro = () => (
+    <View
+      style={{
+        flex: 1,
+      }}
+    >
+    <ImageBackground
+      source={require('./assets/gradient_bg.png')}
+      resizeMode='cover'
+      position='relative'
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}
+    >
+     <Image
+       source={require('./assets/ormoc_bg.png')}
+       style={{
+         width: 120,
+         height: 120,
+       }}
+     />
+     <Text
+       style={{
+         fontSize: 30,
+         fontWeight: 'bold',
+         color: '#566573'
+       }}
+     >
+       Q R M O C
+     </Text>
+     <Text
+      style={{
+        color: '#566573',
+        position: 'absolute',
+        bottom: 20,
+      }}
+     >
+      1 CORINTHIANS 10:31
+     </Text>
+    </ImageBackground>
+    </View>
+  );
+
 
   const storeData = async (value) => {
     try {
       const jsonValue = JSON.stringify(value)
       await AsyncStorage.setItem('user_info', jsonValue)
-    } catch (e) {
+    }catch (e) {
       unsuccess();
     }
   }
@@ -412,7 +434,7 @@ export default function App() {
 
   const signin = async (user_pin) => {
     try{
-      const response = await fetch('http://119.92.152.243/processes/app_signin.php', {
+      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/app_signin.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -423,26 +445,28 @@ export default function App() {
       })
     });
       const json = await response.json();
-      if(json === 'onduty'){
-         setBool(true);
-         let user_creds = {
-           pin: pin
-         }
-         storeData(user_creds);
-         setProfilename(name);
-       }
-       else if(json === 'registered'){
-         info();
-       }
-       else if(json === 'unregistered'){
-         loginfail();
-       }
-       else if(json === 'error'){
-         loginError();
-       }
+      if(json == 'offduty'){
+        setSignInStatus('You are off duty');
+        reset();
+      }else if(json == 'unregistered'){
+        setSignInStatus('Not registered');
+        reset();
+      }else if(json == 'error'){
+        setSignInStatus('Something went wrong');
+        reset();
+      }else{
+        try{
+          let data = JSON.parse(json);
+          setBool(true);
+        }catch(e){
+          setSignInStatus('Something went wrong');
+          reset();
+        }
+      }
     }
     catch(error){
-      loginError();
+      setSignInStatus('Something went wrong');
+      reset();
     }
   }
 
@@ -461,76 +485,273 @@ export default function App() {
     }
   }
 
-  return (
+  const Pone = ({color}) => (
+    <View style={{width: 15,
+      height: 15,
+      borderWidth: 1,
+      borderRadius: 50,
+      borderColor: '#566573',
+      backgroundColor: color
+    }}
+    >
+    </View>
+  )
 
+  const Ptwo = ({color}) => (
+    <View style={{width: 15,
+      height: 15,
+      borderWidth: 1,
+      borderRadius: 50,
+      borderColor: '#566573',
+      backgroundColor: color
+    }}
+    >
+    </View>
+  )
+
+  const Pthree = ({color}) => (
+    <View style={{width: 15,
+      height: 15,
+      borderWidth: 1,
+      borderRadius: 50,
+      borderColor: '#566573',
+      backgroundColor: color
+    }}
+    >
+    </View>
+  )
+
+  const Pfour = ({color}) => (
+    <View style={{width: 15,
+      height: 15,
+      borderWidth: 1,
+      borderRadius: 50,
+      borderColor: '#566573',
+      backgroundColor: color
+    }}
+    >
+    </View>
+  )
+
+  const [pinOne, setPinOne] = useState(false);
+  const [pinTwo, setPinTwo] = useState(false);
+  const [pinThree, setPinThree] = useState(false);
+  const [pinFour, setPinFour] = useState(false);
+  const [pinCount, setPinCount] = useState(1);
+  const [pin, setPin] = useState('');
+  const [signInStatus, setSignInStatus] = useState('');
+  const [iconType, setIconType] = useState('');
+
+  const reset = () => {
+    setPin('');
+    setPinCount(1);
+    setPinOne(false);
+    setPinTwo(false);
+    setPinThree(false);
+    setPinFour(false);
+  }
+
+  const buttonPress = (value) => {
+    setPinCount(pinCount + 1);
+    setPin(pin + value.toString());
+    setSignInStatus('');
+    setIconType('');
+    if(pinCount == 1){
+      setPinOne(true);
+    }else if(pinCount == 2){
+      setPinTwo(true);
+    }else if(pinCount == 3){
+      setPinThree(true);
+    }else if(pinCount == 4){
+      setPinFour(true);
+    }
+  }
+
+  const deletePin = () => {
+    if(pinCount == 2){
+      setPin(pin.slice(0, -1))
+      setPinOne(false);
+      setPinCount(pinCount - 1);
+    }else if(pinCount == 3){
+      setPinTwo(false);
+      setPin(pin.slice(0, -1))
+      setPinCount(pinCount - 1);
+    }else if(pinCount == 4){
+      setPinThree(false);
+      setPin(pin.slice(0, -1))
+      setPinCount(pinCount - 1);
+    }
+  }
+
+  (function(){
+    if(pin.length == 4){
+      signin(pin);
+    }
+  })()
+
+  return (
     bool ? <Bottomnavigation/> :
     <View
-      style = {loginputStyle.container}
+      style={{
+        flex: 1
+      }}
     >
       <ImageBackground
-        style={loginputStyle.imagecontainer}
+        style={{
+          flex: 1,
+          paddingLeft: 30,
+          paddingRight: 30,
+          paddingTop: 0,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
         source={ require('./assets/gradient_bg.png')}
       >
+      <View
+        style={{
+          position: 'absolute',
+          top: 0,
+          flex: 1,
+          alignItems: 'center',
+        }}
+      >
         <Image
-          style = {{
-            // width: 140,
-            // height: 140,
-            width: 360,
-            height: 140,
-            borderRadius: 10,
-            borderWidth: 4,
-            borderColor: '#00a2e8',
-            alignSelf: 'center'
+          source={require('./assets/ormoc_bg.png')}
+          style={{
+            width: width,
+            height: 200,
+            marginBottom: 5
           }}
-            source = {require('./assets/banner.jpg')}
-          />
-        <Card
-          containerStyle={{
-            borderTopLeftRadius: 15,
-            borderTopRightRadius: 15,
-            borderBottomLeftRadius: 15,
-            borderBottomRightRadius: 15,
+        />
+        <Text
+          style={{
+            color: '#566573',
+            fontWeight: 'bold',
+            fontSize: 22
           }}
         >
-          <Card.Title>Dispatcher</Card.Title>
-          <Card.Divider/>
-
-        <Input
-          // style = {loginputStyle.input}
-          label="4-Digit PIN"
-          labelStyle={{ color:'black', fontWeight: '300' }}
-          inputStyle={{ color:'black', fontSize: 22, fontWeight: '400', textAlign: 'center' }}
-          inputContainerStyle={{
-            borderBottomColor: 'black'
-           }}
-          onChangeText = {setPin}
-          value = {pin}
-          secureTextEntry = {true}
-          maxLength = {4}
-          keyboardType = "number-pad"
-        />
-            <Text style={{marginBottom: 10, textAlign: 'center'}}>
-            “Smile, it's free therapy.”
+          Q R M O C
+        </Text>
+      </View>
+      <View
+        style={{
+          alignItems: 'center',
+          top: '15%'
+        }}
+      >
+      <View style={{width: 200, height: 70, alignItems: 'center', marginBottom: 20}}>
+        <View
+          style={{
+            width: 150,
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+          }}
+        >
+          <Pone
+            color={pinOne ? '#566573' : ''}
+          />
+          <Ptwo
+            color={pinTwo ? '#566573' : ''}
+          />
+          <Pthree
+            color={pinThree ? '#566573' : ''}
+          />
+          <Pfour
+            color={pinFour ? '#566573' : ''}
+          />
+        </View>
+        <TouchableOpacity style={{marginTop: 10}} onPress={reset}>
+          <Text style={{color: '#566573', fontWeight: 'bold'}}>
+            RESET
+          </Text>
+        </TouchableOpacity>
+        <Text style={{bottom: 0, position: 'absolute', color: '#CD6155'}}>
+          {iconType} {signInStatus}
+        </Text>
+      </View>
+        <View style={logInputStyle.customContainerButtons}>
+          <TouchableOpacity style={logInputStyle.customButtons} onPress={() => buttonPress(1)}>
+            <Text style={{fontWeight: 'bold', fontSize: 20, color: '#566573'}}>
+              1
             </Text>
-            <Button
-              // icon={<Icon name='chevron-right' color='#ffffff' />}
-              buttonStyle={{borderRadius: 2, marginLeft: 0, marginRight: 0, marginBottom: 0}}
-              title='LOGIN'
-              onPress = {signinProcess}
-              />
-        </Card>
+          </TouchableOpacity>
+          <TouchableOpacity style={logInputStyle.customButtons} onPress={() => buttonPress(2)}>
+            <Text style={{fontWeight: 'bold', fontSize: 20, color: '#566573'}}>
+              2
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={logInputStyle.customButtons} onPress={() => buttonPress(3)}>
+            <Text style={{fontWeight: 'bold', fontSize: 20, color: '#566573'}}>
+              3
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View style={logInputStyle.customContainerButtons}>
+          <TouchableOpacity style={logInputStyle.customButtons} onPress={() => buttonPress(4)}>
+            <Text style={{fontWeight: 'bold', fontSize: 20, color: '#566573'}}>
+              4
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={logInputStyle.customButtons} onPress={() => buttonPress(5)}>
+            <Text style={{fontWeight: 'bold', fontSize: 20, color: '#566573'}}>
+              5
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={logInputStyle.customButtons} onPress={() => buttonPress(6)}>
+            <Text style={{fontWeight: 'bold', fontSize: 20, color: '#566573'}}>
+            6
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View style={logInputStyle.customContainerButtons}>
+          <TouchableOpacity style={logInputStyle.customButtons}  onPress={() => buttonPress(7)}>
+            <Text style={{fontWeight: 'bold', fontSize: 20, color: '#566573'}}>
+              7
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={logInputStyle.customButtons} onPress={() => buttonPress(8)}>
+            <Text style={{fontWeight: 'bold', fontSize: 20, color: '#566573'}}>
+              8
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={logInputStyle.customButtons} onPress={() => buttonPress(9)}>
+            <Text style={{fontWeight: 'bold', fontSize: 20, color: '#566573'}}>
+              9
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View style={logInputStyle.customContainerButtons}>
+          <TouchableOpacity style={{width: 55, height: 55}}>
+          </TouchableOpacity>
+          <TouchableOpacity style={logInputStyle.customButtons} onPress={() => buttonPress(0)}>
+            <Text style={{fontWeight: 'bold', fontSize: 20, color: '#566573'}}>
+              0
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{width: 55, height: 55, justifyContent: 'center', alignItems: 'center', borderRadius: 50, backgroundColor: '#25bbc6'}} onPress={() => deletePin()}>
+            <Text style={{fontWeight: 'bold', fontSize: 20}}>
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
       </ImageBackground>
     </View>
   );
 }
 
-const loginputStyle = StyleSheet.create({
-  container: {
-    flex: 1,
+const logInputStyle = StyleSheet.create({
+  customContainerButtons: {
+    padding: 5,
+    width: width - 60,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
   },
-  imagecontainer: {
-    flex: 1,
-    justifyContent: "center",
-    resizeMode: 'contain',
-  },
+  customButtons: {
+    width: 55,
+    height: 55,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 50,
+    backgroundColor: '#5df4e2',
+  }
 });
