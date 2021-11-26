@@ -3,9 +3,8 @@
 import React, {useState, useEffect} from 'react';
 import {Text, Alert, View, TextInput, StyleSheet, TouchableOpacity, ImageBackground, SafeAreaView, Image, Dimensions, Button} from 'react-native';
 import { createBottomTabNavigator, useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import {Ionicons} from 'react-native-vector-icons/Ionicons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import QRScanner from './parts/qrscanner';
 import PUVlist from './parts/puvlist';
 import Passengerlist from './parts/passengerlist';
@@ -18,68 +17,45 @@ import { white } from 'react-native-paper/lib/typescript/styles/colors';
 // Screen Dimension
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
+var ws = new WebSocket('ws://192.168.1.21:8082');
 
 const bgTheme = {
   colors: {
-    primary: 'transparent',
-    // background: '#0059e5',
-    background: '#00a2e8',
-    card: 'transparent',
-    text: '#FFF',
-    border: 'transparent',
+    background: '#21add4',
+    text: '#566573',
     notification: 'transparent',
-    //Color Base = color: "#77BCFF"
-    //Color Accent 1 = #FF1D36
-    //Color Accent 2 =  #E9FF1D
-    //Color Main = color: "#1E90FF"
   },
 };
 
 
-
-var ws = new WebSocket('ws://119.92.152.243/processes');
-
-const unsuccess = () => Alert.alert("Error occured", "Something went wrong doing the operation",);
-
-const success = () => Alert.alert("Success", "Vehicle successfully unqueued");
-
-const loginfail = () => Alert.alert("Error","Dispatcher is not registered");
-
-const info = () => Alert.alert("Information","The dispatcher is registered but is not on duty, login is restricted");
-
-const loginError = () => Alert.alert("Error", "A problem was encountered signing you in");
-
 export default function App() {
-
   const Tab = createBottomTabNavigator();
   const Stack = createNativeStackNavigator();
   const [bool, setBool] = useState(false);
   const [name, setName] = useState('');
   const [profilename, setProfilename] = useState('');
   const [ping, setPing] = useState(false);
+  const [profileURL, setProfileURL] = useState('');
+  const [id, setID] = useState();
 
   useEffect(() => {
-    getData();
+    isReachable();
   },[]);
 
-  const connectionError = () => Alert.alert(
-    "Connection error",
-    "You might have to manually reload PUV and passenger list, since you cannot connect with other dispatchers",
-    [
-      {
-        text: "OK",
-        onPress: () => {
-          clearInterval(connectionInterval);
-        }
-      }
-    ]
-  );
+  const connectionError = () => {
+    clearInterval(connectionInterval);
+  }
+
+  console.log(bool);
 
   const connectionInterval = setInterval(() => {
     if(ping){
       ws.send('ping');
+      console.log("hello");
     }
   }, 3000);
+
+  const unsuccess = () => Alert.alert("yoho");
 
   function manualQueuing({route}){
     return(
@@ -98,6 +74,8 @@ export default function App() {
         />
       );
   }
+
+  const success = () => Alert.alert('Yehey');
 
   function queuingPUV({navigation}){
     return (
@@ -127,25 +105,36 @@ export default function App() {
         <Stack.Screen
         name="PUVs"
         component={queuingPUV}
+        options={{
+          headerStyle: {
+            backgroundColor: '#21add4'
+          },
+          headerShadowVisible: false
+        }}
         />
         <Stack.Screen
         name="Options"
         component={puvDetails}
-        options={({ route, }) => ({ title: route.params.vehicle[1] })}
+        options={({ route }) => ({
+          title: route.params.vehicle[2],
+          headerStyle: {
+            backgroundColor: '#21add4'
+          },
+          headerShadowVisible: false
+        })}
         />
       </Stack.Navigator>
     );
   }
 
   ws.onmessage = (e) => {
-    if (e.data === profilename.trim()) {
+    if (e.data == id) {
       setBool(false);
-      setName('');
-      setPin('');
     }
   };
 
   ws.onopen = () => {
+    console.log("opened");
     setPing(true);
   }
 
@@ -187,7 +176,7 @@ export default function App() {
             paddingLeft: 38,
           }}
         >
-          Dispatcher
+        Dispatcher
         </Text>
         <View
           style={{
@@ -210,7 +199,7 @@ export default function App() {
             borderWidth: 4,
             borderColor: '#00a2e8',
           }}
-            source = {require('./assets/profile.png')}
+            source = {{uri: 'http://192.168.1.21/CapstoneWeb/' + profileURL.slice(1)}}
           />
         </View>
         <SafeAreaView
@@ -238,15 +227,15 @@ export default function App() {
                 backgroundColor: 'red',
                 marginTop: 35,
                 borderWidth: 0.5,
-                borderRadius: 5,
+                borderRadius: 100,
                 padding: 10,
                 width: 350,
                 alignItems: "center",
                 alignSelf: 'center',
+                marginBottom: 20
               }}
               onPress = {() => {
                 setBool(false);
-                storeData({name: null, pin: null});
               }}
             >
               <Text
@@ -271,7 +260,7 @@ export default function App() {
   }
 
   const Bottomnavigation = () => (
-      <NavigationContainer  theme={bgTheme}>
+      <NavigationContainer theme={bgTheme}>
         <Tab.Navigator
           screenOptions={({ route }) => ({
             tabBarStyle: {
@@ -309,7 +298,7 @@ export default function App() {
             name="PUVS"
             component={puvs}
             options={{
-              headerShown: false,
+              headerShown: false
             }}
           />
           <Tab.Screen
@@ -323,6 +312,9 @@ export default function App() {
           <Tab.Screen
             name="PROFILE"
             component={showProfile}
+            options={{
+              headerTitleAlign: 'center',
+            }}
           />
         </Tab.Navigator>
       </NavigationContainer>
@@ -345,7 +337,7 @@ export default function App() {
       }}
     >
      <Image
-       source={require('./assets/ormoc_bg.png')}
+       source={require('./assets/applogo.png')}
        style={{
          width: 120,
          height: 120,
@@ -360,6 +352,11 @@ export default function App() {
      >
        Q R M O C
      </Text>
+     <View style={{marginTop: 30}}>
+      <Text style={{color: '#566573', fontSize: 12}}>
+        {iconType}{signInStatus}
+      </Text>
+     </View>
      <Text
       style={{
         color: '#566573',
@@ -373,64 +370,9 @@ export default function App() {
     </View>
   );
 
-
-  const storeData = async (value) => {
-    try {
-      const jsonValue = JSON.stringify(value)
-      await AsyncStorage.setItem('user_info', jsonValue)
-    }catch (e) {
-      unsuccess();
-    }
-  }
+console.log(id);
 
 //Fetch function
-
-  const autoSignIn = async (recent_name, recent_pin) => {
-    try{
-      const response = await fetch('http://119.92.152.243/processes/app_signin.php', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: recent_name,
-          pin: recent_pin
-      })
-    });
-      const json = await response.json();
-      if(json === 'ONDUTY'){
-       setBool(true);
-       setProfilename(recent_name);
-       Alert.alert(
-         "Information",
-         "You are signed in as " + recent_name,
-         [
-           {
-             text: "Ok",
-             onPress: () => {
-             }
-           }
-         ]
-       );
-      }
-       else if(json === 'REGISTERED'){
-         info();
-       }
-       else if(json === 'UNREGISTERED'){
-         loginfail();
-       }
-       else if(json === 'HALTED'){
-         loginError();
-       }
-    }
-    catch(error){
-      Alert.alert("Cannot Sign-in", "Something went wrong signing you in automatically");
-    }
-  }
-
-
-
 
   const signin = async (user_pin) => {
     try{
@@ -446,44 +388,40 @@ export default function App() {
     });
       const json = await response.json();
       if(json == 'offduty'){
+        setIconType(<Ionicons name='warning' size={16}/>);
         setSignInStatus('You are off duty');
         reset();
       }else if(json == 'unregistered'){
+        setIconType(<Ionicons name='alert-circle' size={16}/>);
         setSignInStatus('Not registered');
         reset();
       }else if(json == 'error'){
+        setIconType(<Ionicons name='warning' size={16}/>);
         setSignInStatus('Something went wrong');
         reset();
       }else{
         try{
           let data = JSON.parse(json);
-          setBool(true);
+          if(data.status == "onduty"){
+            setBool(true);
+            setProfilename(data.name);
+            setProfileURL(data.profile);
+            setID(data.id);
+            reset();
+          }
         }catch(e){
+          setIconType(<Ionicons name='error' size={16}/>);
           setSignInStatus('Something went wrong');
           reset();
         }
       }
-    }
-    catch(error){
+    }catch(error){
+      setIconType(<Ionicons name='error' size={16}/>);
       setSignInStatus('Something went wrong');
       reset();
     }
   }
 
-
-  const getData = async () => {
-    try {
-      const jsonValue = await AsyncStorage.getItem('user_info')
-      if (jsonValue != null) {
-        let stored_credentials  = JSON.parse(jsonValue);
-        if (stored_credentials.name != null && stored_credentials.pin != null) {
-          autoSignIn(stored_credentials.name, stored_credentials.pin);
-        }
-      }
-    } catch(e) {
-      unsuccess();
-    }
-  }
 
   const Pone = ({color}) => (
     <View style={{width: 15,
@@ -539,8 +477,10 @@ export default function App() {
   const [pinFour, setPinFour] = useState(false);
   const [pinCount, setPinCount] = useState(1);
   const [pin, setPin] = useState('');
+  const [signProcess, setSignProcess] = useState('');
   const [signInStatus, setSignInStatus] = useState('');
   const [iconType, setIconType] = useState('');
+  const [serverStatus, setServerStatus] = useState(false);
 
   const reset = () => {
     setPin('');
@@ -589,7 +529,35 @@ export default function App() {
     }
   })()
 
+
+  const isReachable = async () =>{
+    setIconType(<Ionicons name='swap-vertical-outline' size={20}/>);
+    setSignInStatus(' Connecting to the server...');
+    const timeout = new Promise((resolve, reject) => {
+        setTimeout(reject, 5000, 'Request timed out');
+    });
+
+    const request = fetch('http://192.168.1.21');
+    try {
+        const response = await Promise
+            .race([timeout, request]);
+        setTimeout(() => {
+          setServerStatus(true);
+          setIconType('');
+          setSignInStatus('');
+        }, 2000);
+    }
+    catch (error) {
+      setServerStatus(false);
+      setIconType(<Ionicons name='warning' size={20} color='#F7DC6F'/>);
+      setSignInStatus(' Please check you internet connection');
+    }
+  }
+
+
+
   return (
+    serverStatus ?
     bool ? <Bottomnavigation/> :
     <View
       style={{
@@ -616,22 +584,14 @@ export default function App() {
         }}
       >
         <Image
-          source={require('./assets/ormoc_bg.png')}
+          source={require('./assets/banner.jpg')}
           style={{
             width: width,
             height: 200,
-            marginBottom: 5
+            marginBottom: 5,
+            borderWidth: 1
           }}
         />
-        <Text
-          style={{
-            color: '#566573',
-            fontWeight: 'bold',
-            fontSize: 22
-          }}
-        >
-          Q R M O C
-        </Text>
       </View>
       <View
         style={{
@@ -729,20 +689,21 @@ export default function App() {
             </Text>
           </TouchableOpacity>
           <TouchableOpacity style={{width: 55, height: 55, justifyContent: 'center', alignItems: 'center', borderRadius: 50, backgroundColor: '#25bbc6'}} onPress={() => deletePin()}>
-            <Text style={{fontWeight: 'bold', fontSize: 20}}>
-            </Text>
+            <Ionicons name='backspace' size={25} color='#566573'/>
           </TouchableOpacity>
         </View>
       </View>
       </ImageBackground>
     </View>
+    :
+    <Intro/>
   );
 }
 
 const logInputStyle = StyleSheet.create({
   customContainerButtons: {
     padding: 5,
-    width: width - 60,
+    width: width - 100,
     flexDirection: 'row',
     justifyContent: 'space-around',
   },

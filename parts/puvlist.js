@@ -1,22 +1,34 @@
 import React, { useState, useRef, useEffect } from "react";
-import { ActivityIndicator, Button, View, FlatList, SafeAreaView, StatusBar, Text, TouchableOpacity, Image, Alert, ScrollView } from "react-native";
+import { ImageBackground, ActivityIndicator, Button, View, FlatList, SafeAreaView, StatusBar, Text, TouchableOpacity, Image, Alert, ScrollView } from "react-native";
 
 //This is the component that will be rendered by the flatlist.
 const Item = ({ item, pass, uq }) => (
-  <TouchableOpacity
-  onPress = {pass}
-  style = {{
-    padding: 20,
-    marginVertical: 5,
-    marginHorizontal: 8,
+  <View style={{
+    position: 'relative',
+    marginBottom: 1,
+    marginHorizontal: 4,
+    borderRadius: 5,
+    overflow: 'hidden'
+  }}>
+  <View style={{
+    position: 'absolute',
     backgroundColor: "#2c3e50",
+    opacity: 0.3,
+    width: '100%',
+    height: '100%'
+  }}>
+  </View>
+  <TouchableOpacity
+    onPress = {pass}
+    style = {{
+    padding: 20,
     flexDirection: "row",
     position: "relative",
-    borderRadius: 5
   }}>
     <Text
     style = {{
       fontSize: 18,
+      fontWeight: 'bold',
       color: "white"
     }}
     >
@@ -26,7 +38,7 @@ const Item = ({ item, pass, uq }) => (
       fontSize: 15,
       padding: 3,
       position: "absolute",
-      backgroundColor: "#28b463",
+      backgroundColor: '#21add4',
       borderRadius: 5,
       top: 19,
       left: 110
@@ -46,7 +58,7 @@ const Item = ({ item, pass, uq }) => (
       top: 19
     }}
     >
-    {item.passengers === item.capacity ? "FULL" : item.passengers + "/" + item.capacity}
+    {item.passengers == item.capacity ? "FULL" : item.passengers + "/" + item.capacity}
     </Text>
     <TouchableOpacity
     onPress = {uq}
@@ -65,7 +77,8 @@ const Item = ({ item, pass, uq }) => (
     />
     </TouchableOpacity>
   </TouchableOpacity>
-);
+  </View>
+  );
 
 const PUVlist = ({navigation, ws, warning, success}) => {
 
@@ -85,7 +98,7 @@ const PUVlist = ({navigation, ws, warning, success}) => {
   //This will retrieve the list of currently queuing vehicles from the server.
   const retrieveList = async() => {
     try{
-      const response = await fetch('http://119.92.152.243/processes/retrievelist.php', {
+      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/retrievelist.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -94,6 +107,7 @@ const PUVlist = ({navigation, ws, warning, success}) => {
       });
       const json = await response.json();
       setReply(JSON.parse(json));
+      console.log(JSON.parse(json));
     }catch(error){
       warning();
     }
@@ -110,7 +124,7 @@ const PUVlist = ({navigation, ws, warning, success}) => {
 
   const unqueue = async(data) => {
     try{
-      const response = await fetch('http://119.92.152.243/processes/dispatcher_unqueue_vehicle.php', {
+      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/dispatcher_unqueue_vehicle.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -121,15 +135,41 @@ const PUVlist = ({navigation, ws, warning, success}) => {
         })
       });
       const json = await response.json();
-      json === "error" ? warning() : unqueueSuccessFunction(json);
+      json == "error" ? warning() : unqueueSuccessFunction(json);
     }catch(error){
       warning();
     }
   }
 
+  const getProfile = async(filename, vehicle, capacity, passengers) => {
+    try{
+      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/dispatcher_get_vehicle_profile.php', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          data: vehicle
+        })
+      });
+      const json = await response.json();
+      let operator = json.FirstName + ' ' + json.MiddleName[0] + '. ' + json.LastName;
+      let driver = json.DFirstName + ' ' + json.MiddleName[0] + '. ' + json.LastName;
+      if(json.VehicleProfile == null){
+        navigation.navigate('Options', {vehicle: [filename, '/vehicle_images/vehicleImage.png', vehicle, capacity, passengers, operator, driver]});
+      }else{
+        navigation.navigate('Options', {vehicle: [filename, json.VehicleProfile.slice(1), vehicle, capacity, passengers, operator, driver]});
+      }
+    }catch(error){
+      console.log(error);
+      navigation.navigate('Options', {vehicle: [filename, "/vehicle_images/vehicleImage.png", vehicle, capacity, passengers]});
+    }
+  }
+
   const unqueueAlert = (data) => Alert.alert(
-    "Confirmation",
     "Do you really want to unqueue this PUV?",
+    "This will remove the PUV from the queuing list, and will create a log of its passengers",
     [
       {
         text: "Cancel",
@@ -159,11 +199,12 @@ const PUVlist = ({navigation, ws, warning, success}) => {
     retrieveList();
   }
 
+
   const renderItem = ({ item }) => {
     return(
       <Item
       item = {item}
-      pass = {() => navigation.navigate('Options', {vehicle: [item.route + "_" + item.vehicle + ".json", item.vehicle]})}
+      pass = {() => getProfile(item.route + "_" + item.vehicle + ".json", item.vehicle, item.capacity, item.passengers)}
       uq = {() => unqueueAlert(item.vehicle)}
       />
     );
@@ -180,58 +221,76 @@ const PUVlist = ({navigation, ws, warning, success}) => {
 
   return(
     loading ?
-    <ScrollView>
-      <SafeAreaView style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center"
-      }}
+    <SafeAreaView style={{
+      flex: 1,
+    }}
+    >
+      <ImageBackground
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          width: '100%'
+        }}
+        source={require('../assets/gradient_bg.png')}
       >
         <ActivityIndicator size="large" color="green"/>
-      </SafeAreaView>
-    </ScrollView>
+      </ImageBackground>
+    </SafeAreaView>
     :
     reply.length > 0 ?
     <SafeAreaView style={{
-      flex: 1
-    }}
+      flex: 1,
+      }}
     >
-     <FlatList
-     data = {reply}
-     renderItem = {renderItem}
-     extraData = {reply}
-     refreshing = {ref}
-     onRefresh = {refreshFunc}
-     />
+      <ImageBackground
+        style={{
+          flex: 1,
+          width: '100%',
+          paddingTop: 2
+        }}
+        source={require('../assets/gradient_bg.png')}
+      >
+        <FlatList
+          data = {reply}
+          renderItem = {renderItem}
+          extraData = {reply}
+          refreshing = {ref}
+          onRefresh = {refreshFunc}
+        />
+      </ImageBackground>
     </SafeAreaView>
     :
     <SafeAreaView style = {{
       flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      opacity: 0.5
     }}
     >
-      <Text>
-        No currently queuing vehicle
-      </Text>
-      <TouchableOpacity
-      onPress = {refPressed}
-      >
-        <Image
-        style = {{
-          margin: 20,
-          width: 40,
-          height: 40
+      <ImageBackground
+        source={require('../assets/gradient_bg.png')}
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          height: '100%',
         }}
-        source = {
-          require('../assets/reload.png')
-        }
-        />
-      </TouchableOpacity>
+      >
+        <Text>
+          No currently queuing vehicle
+        </Text>
+        <TouchableOpacity
+          onPress = {refPressed}
+        >
+          <Image
+            style = {{
+              margin: 20,
+              width: 40,
+              height: 40
+            }}
+            source = {require('../assets/reload.png')}
+          />
+        </TouchableOpacity>
+      </ImageBackground>
     </SafeAreaView>
   )
-
 }
-
 export default PUVlist;

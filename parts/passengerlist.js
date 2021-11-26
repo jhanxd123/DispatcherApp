@@ -1,74 +1,50 @@
 import React, { useState, useRef, useEffect } from "react";
-import { ActivityIndicator, StyleSheet, Button, View, FlatList, SafeAreaView, StatusBar, Text, TouchableOpacity, Image, Alert } from "react-native";
+import { ImageBackground, ActivityIndicator, StyleSheet, Button, View, FlatList, SafeAreaView, StatusBar, Text, TouchableOpacity, Image, Alert } from "react-native";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const Passenger = ({item, unload}) => (
-  <View
-  style={{
-    padding: 20,
-    marginVertical: 5,
-    marginHorizontal: 8,
-    backgroundColor: "#f1c40f",
-    flexDirection: "row",
-    position: "relative",
-    borderRadius: 5
-  }}
-  >
-    {
-      item.Name == '' && item.Companion == '' ?
-      <Text style={{
-        fontSize: 20,
-        fontWeight: "bold",
-        color: "#C0392B"
-      }}>
-        Vacant seat
-      </Text>
-      :
-      item.Companion == "true" ?
-      <Text style={{
-        fontSize: 20,
-        fontWeight: "bold",
-        color: "white"
-      }}>
-      {item.Name}
-      </Text>
-      :
-      <Text style={{
-        fontSize: 20,
-        fontWeight: "bold",
-      }}>
-      {item.Name}
-      </Text>
-    }
-    {
-      item.Name == '' && item.Companion == '' ?
-    <Text style={{
-      position: "absolute",
-      right: 22,
-      top: 11,
-      fontSize: 30
-    }}
-    >
-    +
-    </Text>
-    :
-    <TouchableOpacity
-    onPress = {unload}
+  item.Name != '' && item.Companion != '' ?
+    <View
     style={{
-      position: "absolute",
-      right: 10,
-      top: 13,
+      minHeight: 60,
+      flexDirection: "row",
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      borderRadius: 5,
+      marginHorizontal: 4,
+      marginBottom: 1,
+      position: 'relative',
+      overflow: 'hidden'
     }}
     >
-      <Image
-      style = {{
-        width: 40,
-        height: 40,
+      <View style={{
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#2c3e50',
+        opacity: 0.3
+      }}>
+      </View>
+      <Text style={{
+          fontSize: 18,
+          paddingLeft: 10,
+          color: 'white'
+        }}>
+        <Ionicons name='person' size={20} color='#2c3e50'/>
+        {" " + item.Name}
+      </Text>
+      <TouchableOpacity
+      onPress = {unload}
+      style={{
+        paddingRight: 10
       }}
-      source = {item.Name == '' && item.Companion == '' ? null : require('../assets/unload.png')}
-      />
-    </TouchableOpacity>
-    }
-  </View>
+      >
+      <Ionicons name='close-circle' size={30} color="red"/>
+      </TouchableOpacity>
+    </View>
+    :
+    <View>
+    </View>
 );
 
 const Passengerlist = ({ws, route, warning}) => {
@@ -88,7 +64,7 @@ const Passengerlist = ({ws, route, warning}) => {
 
   const retrievePassengerList = async(data) => {
     try{
-      const response = await fetch('http://119.92.152.243/processes/retrievepassengerlist.php',
+      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/retrievepassengerlist.php',
       {
         method: 'POST',
         headers: {
@@ -116,7 +92,7 @@ const Passengerlist = ({ws, route, warning}) => {
 
   const unload = async(file, passenger, vehicle) => {
     try{
-      const response = await fetch('http://119.92.152.243/processes/unload.php',{
+      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/unload.php',{
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -156,7 +132,7 @@ const Passengerlist = ({ws, route, warning}) => {
     return(
       <Passenger
       item = {item}
-      unload = {() => {unloadAlert(route.params.vehicle[0], item.Name, route.params.vehicle[1])}}
+      unload = {() => {unloadAlert(route.params.vehicle[0], item.Name, route.params.vehicle[2])}}
       />
     );
   }
@@ -191,14 +167,77 @@ const Passengerlist = ({ws, route, warning}) => {
       <ActivityIndicator size="large" color="green"/>
     </SafeAreaView>
     :
-    <SafeAreaView>
-      <FlatList
-        data = {reply}
-        renderItem = {renderItem}
-        extraData = {reply}
-        refreshing = {ref}
-        onRefresh = {refreshFunc}
-      />
+    <SafeAreaView style={{
+      flex: 1
+    }}
+    >
+    <View style={{
+      width: '100%',
+      height: 200,
+      position: 'relative',
+    }}>
+    <ImageBackground style={{
+        width: '100%',
+        height: '100%',
+        opacity: 0.5,
+        position: 'absolute'
+      }}
+      source={{uri: 'http://192.168.1.21/CapstoneWeb' + route.params.vehicle[1]}}
+    >
+    </ImageBackground>
+    <View style={{
+        flex: 1,
+        padding: 10,
+      }}
+    >
+      <Text style={{
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 50
+      }}>
+        {route.params.vehicle[2]}
+      </Text>
+      <Text style={{
+        color: 'white',
+        fontSize: 18
+      }}>
+        {'Driver: ' + route.params.vehicle[6]}
+      </Text>
+      <Text style={{
+        color: 'white',
+        fontSize: 18
+      }}>
+        {'Operator: ' + route.params.vehicle[5]}
+      </Text>
+      <Text style={{
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 25,
+        backgroundColor: "#f4d03f",
+        padding: 5,
+        borderRadius: 3,
+        right: 10,
+        bottom: 10,
+        position: 'absolute',
+      }}>
+        {route.params.vehicle[4] + " / " + route.params.vehicle[3]}
+      </Text>
+    </View>
+    </View>
+      <ImageBackground style={{
+          flex: 1,
+          paddingTop: 2
+        }}
+        source={require('../assets/gradient_bg.png')}
+      >
+        <FlatList
+          data = {reply}
+          renderItem = {renderItem}
+          extraData = {reply}
+          refreshing = {ref}
+          onRefresh = {refreshFunc}
+        />
+      </ImageBackground>
     </SafeAreaView>
   );
 

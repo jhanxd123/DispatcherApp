@@ -1,8 +1,12 @@
 import React, { Component, useState, useEffect } from 'react';
-import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity, Dimensions, Alert, ScrollView, Image } from 'react-native';
-import { Button, Icon, Input} from 'react-native-elements';
+import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity, Dimensions, Alert, ScrollView, Image, ImageBackground } from 'react-native';
+import { Button, Icon, Input } from 'react-native-elements';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import { BottomSheet } from 'react-native-btr';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import Sound from 'react-native-sound';
+
+var goodSound = new Sound(require('../assets/success.mp3'));
 
 const QRScanner = ({ws}) => {
 
@@ -19,17 +23,22 @@ const QRScanner = ({ws}) => {
   const [mname, setMname] = useState('');
   const [lname, setLname] = useState('');
   const [cnum, setCnum] = useState('');
+  const [bColor, setBColor] = useState('#2471A3');
+  const [buttonColor, setButtonColor] = useState(require('../assets/button_dis_gradient.png'));
   const height  = Dimensions.get('screen').height;
   const width  = Dimensions.get('screen').width;
 
+
+
   const readingQr = (e) => {
     if(e.data.match(/ORMOC/) == null){
+      goodSound.play();
       queueVehicle(e.data);
     }else{
+      goodSound.play();
       setQRVal(e.data);
       setVisible(true);
     }
-    setBotton(false);
   }
 
   const reset = () => {
@@ -41,8 +50,10 @@ const QRScanner = ({ws}) => {
   }
 
   const checkPassengerStatus = async(data, destination, comp) => {
+    setStatus('Processing...\n');
+    setBColor('#2471A3');
     try{
-      const response = await fetch('http://119.92.152.243/processes/dispatcher_scan_process.php', {
+      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/dispatcher_scan_process.php', {
         method: 'POST',
         headers:{
           Accept: 'application/json',
@@ -54,10 +65,12 @@ const QRScanner = ({ws}) => {
         })
       });
       const json = await response.json();
+      setBotton(false);
+      setButtonColor(require('../assets/button_gradient.png'));
       if(json == "clear"){
         loadPassenger(data, destination, comp);
-        console.log("clear");
       }else if(json == "waiting"){
+        setStatus("Passenger is in waiting list\n");
         Alert.alert("Waiting", "Passenger is in waiting list", [
           {
             text: "Ok"
@@ -75,6 +88,7 @@ const QRScanner = ({ws}) => {
           cancelable: true
         })
       }else if(json == "notregistered"){
+        setStatus("Passenger is not registered\n");
         Alert.alert("Not registered", "Passenger's QR is not yet registered, do you want to register it?",
         [
           {
@@ -86,8 +100,9 @@ const QRScanner = ({ws}) => {
           }
         ])
       }else if(json == "error"){
-        setStatus('Something went wrong');
+        setStatus('Something went wrong\n');
       }else{
+        setStatus("Passenger is already loaded on " + json + "\n");
         Alert.alert("Loaded", "Passenger is already loaded on " + json, [
           {
             text: "Ok"
@@ -101,14 +116,57 @@ const QRScanner = ({ws}) => {
           cancelable: true
         })
       }
+      console.log(json);
     }catch(error){
-      setStatus('Something went wrong');
+      setBotton(false);
+      setButtonColor(require('../assets/button_gradient.png'));
+      setStatus('Something went wrong\n');
     }
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   const loadPassenger = async(data, destination, companion) => {
     try{
-      const response = await fetch('http://119.92.152.243/processes/dispatcher_load_passenger.php', {
+      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/dispatcher_load_passenger.php', {
         method: "POST",
         headers:{
           Accept: 'application/json',
@@ -122,21 +180,62 @@ const QRScanner = ({ws}) => {
       });
       const json = await response.json();
       if(json == "waitinglist"){
-        setStatus("Passenger added to waiting list");
+        setStatus("Passenger added to waiting list\n");
       }else if(json == "error"){
-        setStatus("Something went wrong");
+        setStatus("Something went wrong\n");
       }else{
-        setStatus("Directly to " + json);
+        setStatus("Directly to " + json + "\n");
         ws.send("LOADCHANGES");
       }
     }catch(error){
-      setStatus('Something went wrong');
+      setBotton(false);
+      setButtonColor(require('../assets/button_gradient.png'));
+      setStatus("Something went wrong\n");
     }
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   const removePassenger = async(data, status) => {
     try{
-      const response = await fetch('http://119.92.152.243/processes/dispatcher_remove_passenger.php',{
+      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/dispatcher_remove_passenger.php',{
         method: "POST",
         headers:{
           Accept: 'application/json',
@@ -149,6 +248,7 @@ const QRScanner = ({ws}) => {
       });
       const json = await response.json();
       if(json == "success"){
+        setStatus("Passenger removed\n");
         Alert.alert("Passenger removed", "Passenger is successfully removed", [{
           text: "Ok"
         }],
@@ -156,6 +256,7 @@ const QRScanner = ({ws}) => {
         cancelable: true
       });
       }else if(json == "error"){
+        setStatus("Something went wrong\n");
         Alert.alert("Something went wrong", "Something went wrong, removing the passenger", [{
           text: "Ok"
         }],
@@ -163,6 +264,7 @@ const QRScanner = ({ws}) => {
         cancelable: true
       });
       }else{
+        setStatus("Something went wrong\n");
         Alert.alert("Something went wrong", "Something went wrong, removing the passenger", [{
           text: "Ok"
         }],
@@ -171,15 +273,60 @@ const QRScanner = ({ws}) => {
       });
       }
     }catch(error){
+      setBotton(false);
+      setButtonColor(require('../assets/button_gradient.png'));
+      setStatus("Something went wrong\n");
       Alert.alert("Something went wrong", "Something went wrong removing the passenger", {
         cancelable: true
       });
     }
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   const queueVehicle = async(data) => {
+    setStatus('Processing...\n');
+    setBColor('#2471A3');
     try{
-      const response = await fetch('http://119.92.152.243/processes/dispatcher_queue_vehicles.php',{
+      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/dispatcher_queue_vehicles.php',{
         method: 'POST',
         headers:{
           Accept: 'application/json',
@@ -190,27 +337,81 @@ const QRScanner = ({ws}) => {
         })
       });
       const json = await response.json();
-      setStatus(json);
+      setBotton(false);
+      setButtonColor(require('../assets/button_gradient.png'));
+      setStatus(json + '\n');
       if(json == "Vehicle is set to queuing"){
         ws.send("LOADCHANGES");
       }
     }catch(error){
-      setStatus("Something went wrong");
+      setStatus("Something went wrong\n");
+      setBotton(false);
+      setButtonColor(require('../assets/button_gradient.png'));
     }
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   const checkInfo = async () => {
     if (fname.trim() === '' || mname.trim() === '' || lname.trim() === '' || cnum.trim() === '') {
-      Alert.alert("Error", "Please fill all the field");
+      Alert.alert("Invalid input", "Please recheck all the fields for invalid input");
+    }else if(cnum.trim().length != 11){
+      Alert.alert("Invalid input", "Contact number dit not meet the amount of numbers required");
     }
     else if(qrval == ''){
-      Alert.alert("Error", "No QR code scanned");
+      Alert.alert("No QR code scanned", "There is no value to store");
     }
     else{
       let fullname = fname.trim() + ' ' + mname.trim() + ' ' + lname.trim();
       let contact = cnum;
       try{
-        const response = await fetch('http://119.92.152.243/processes/passenger_register_qr.php', {
+        const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/passenger_register_qr.php', {
           method: 'POST',
           headers:{
             Accept: 'application/json',
@@ -224,71 +425,174 @@ const QRScanner = ({ws}) => {
         });
         const json = await response.json();
         if(json == 'success'){
+          setStatus('Passenger successfully registered\n');
           Alert.alert("Success", "Passenger is successfully registered");
           reset();
         }else if(json == 'registered'){
+          setStatus('QR is already registered\n');
           Alert.alert("Already registered", "QR is already registered");
           reset();
         }else if(json == 'error'){
+          setStatus('Something went wrong\n');
           Alert.alert("Error", "Something went wrong");
           reset();
         }else{
+          setStatus('Something went wrong\n');
           Alert.alert("Error", "Something went wrong");
           reset();
         }
       }catch(error){
+        setBotton(false);
+        setButtonColor(require('../assets/button_gradient.png'));
         Alert.alert("Error", "Something went wrong");
-        setRegVisible(false);
+        reset();
       }
     }
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   const reScan = () => {
     scanner.reactivate();
     setBotton(true);
     setStatus('STATUS\n');
+    setButtonColor(require('../assets/button_dis_gradient.png'));
   }
 
-  const customStyles = StyleSheet.create({
-  cButton: {
-    width: 100,
-    height: 100,
-    alignItems: 'center',
-    marginLeft: 50,
-    borderRadius: 100,
-    backgroundColor: '#f1d219',
-    paddingTop: 18,
-  },
-  cView: {
-    width: "50%",
-    paddingBottom: 130
-  },
-  });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   return(
     <View style={{
-      flex: 1
+      flex: 1,
     }}>
     <QRCodeScanner
-      showMarker
       onRead = {readingQr}
       ref = {(node) => {scanner = node}}
       bottomContent = {
-        <View style = {customStyles.cView}>
-          <Text style={{fontSize: 25, color: 'white', fontWeight: "bold", fontStyle: "italic", textAlign: 'center', position: 'relative'}}>
-            {status}
-          </Text>
-          <TouchableOpacity
-            style={customStyles.cButton}
-            onPress={reScan}
-            disabled={botton}
+        <View style={{position: 'relative', width: '100%', height: 350, background: 'green'}}>
+          <View style={{paddingTop: 20, position: 'absolute', height: 350, width: '100%', zIndex: 1, alignItems: 'center'}}>
+            <Text style={{fontWeight: 'bold', fontSize: 18}}>
+              {status}
+            </Text>
+            <TouchableOpacity
+              style={{
+                zIndex: 2,
+                width: 80,
+                height: 80,
+                borderRadius: 50,
+                justifyContent: 'center',
+                shadowColor: "#000",
+                shadowOffset: {
+          	       width: 0,
+          	        height: 9,
+                  },
+                shadowOpacity: 0.50,
+                shadowRadius: 12.35,
+                elevation: 19,
+                overflow: 'hidden'
+              }}
+              onPress={reScan}
+              disabled={botton}
             >
-               <Icon
-                name='qrcode'
-                type='font-awesome-5'
-                size={28}
+              <ImageBackground style={{flex: 1, justifyContent: 'center'}} source={buttonColor}>
+                <Icon
+                  name='qrcode'
+                  type='font-awesome-5'
+                  size={28}
                 />
-          </TouchableOpacity>
+              </ImageBackground>
+            </TouchableOpacity>
+          </View>
+          <ImageBackground
+            style={{flex: 1, opacity: 0.5, zIndex: 0}}
+            source={require('../assets/gradient_bg.png')}
+          >
+          </ImageBackground>
         </View>
       }
       cameraStyle = {{
@@ -298,22 +602,33 @@ const QRScanner = ({ws}) => {
     <BottomSheet
       visible={visible}
     >
-      <View style={{
-        backgroundColor: "white",
-        paddingRight: 5,
-        paddingLeft: 5,
-        paddingTop: 10,
-        paddingBottom: 20,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        height: 400
-      }}
+      <View
+        style={{
+          backgroundColor: 'white',
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          height: 400,
+          overflow: 'hidden'
+        }}
+      >
+      <ImageBackground
+        source={require('../assets/gradient_bg.png')}
+        style={{
+          flex: 1,
+          paddingRight: 5,
+          paddingLeft: 5,
+          paddingTop: 10,
+          paddingBottom: 20,
+        }}
       >
         <TouchableOpacity
           onPress={() => {
             setVisible(false);
             setFirstBtn(false);
             setSecBtn(true);
+            setBotton(false);
+            setButtonColor(require('../assets/button_gradient.png'));
+            setBColor('#2471A3');
           }}
           style={{
             width: 40,
@@ -329,7 +644,7 @@ const QRScanner = ({ws}) => {
             <TouchableOpacity style={{
               marginBottom: 5,
               height: 60,
-              backgroundColor: "#00a2e8",
+              backgroundColor: bColor,
               borderRadius: 5,
               justifyContent: "center",
               alignItems: "center",
@@ -339,6 +654,7 @@ const QRScanner = ({ws}) => {
                 setDest('valencia');
                 setSecBtn(false);
                 setFirstBtn(true);
+                setBColor('#707B7C');
               }}
             >
               <Text style={{
@@ -353,7 +669,7 @@ const QRScanner = ({ws}) => {
             <TouchableOpacity style={{
               marginBottom: 5,
               height: 60,
-              backgroundColor: "#00a2e8",
+              backgroundColor: bColor,
               borderRadius: 5,
               justifyContent: "center",
               alignItems: "center",
@@ -363,6 +679,7 @@ const QRScanner = ({ws}) => {
                 setDest('puertobello');
                 setSecBtn(false);
                 setFirstBtn(true);
+                setBColor('#707B7C');
               }}
             >
               <Text style={{
@@ -377,7 +694,7 @@ const QRScanner = ({ws}) => {
             <TouchableOpacity style={{
               marginBottom: 5,
               height: 60,
-              backgroundColor: "#00a2e8",
+              backgroundColor: bColor,
               borderRadius: 5,
               justifyContent: "center",
               alignItems: "center",
@@ -387,6 +704,7 @@ const QRScanner = ({ws}) => {
                 setDest('albuera');
                 setSecBtn(false);
                 setFirstBtn(true);
+                setBColor('#707B7C');
               }}
             >
               <Text style={{
@@ -401,7 +719,7 @@ const QRScanner = ({ws}) => {
             <TouchableOpacity style={{
               marginBottom: 5,
               height: 60,
-              backgroundColor: "#00a2e8",
+              backgroundColor: bColor,
               borderRadius: 5,
               justifyContent: "center",
               alignItems: "center",
@@ -411,6 +729,7 @@ const QRScanner = ({ws}) => {
                 setDest('sabangbao');
                 setSecBtn(false);
                 setFirstBtn(true);
+                setBColor('#707B7C');
               }}
             >
               <Text style={{
@@ -447,7 +766,7 @@ const QRScanner = ({ws}) => {
                   color: "white",
                   fontWeight: "bold"
                 }}>
-                  With Companion
+                  <Ionicons name='people-sharp' size={16}/> With Companion
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity style={{
@@ -470,11 +789,12 @@ const QRScanner = ({ws}) => {
                   color: "white",
                   fontWeight: "bold"
                 }}>
-                  No Companion
+                  <Ionicons name='person' size={16}/> No Companion
                 </Text>
               </TouchableOpacity>
             </View>
         </ScrollView>
+        </ImageBackground>
       </View>
     </BottomSheet>
     <BottomSheet
@@ -482,14 +802,21 @@ const QRScanner = ({ws}) => {
     >
       <View style={{
         backgroundColor: "white",
-        paddingRight: 5,
-        paddingLeft: 5,
-        paddingTop: 10,
-        paddingBottom: 20,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
+        overflow: 'hidden',
         height: 400
       }}>
+      <ImageBackground
+        source={require('../assets/gradient_bg.png')}
+        style={{
+          paddingRight: 5,
+          paddingLeft: 5,
+          paddingTop: 10,
+          paddingBottom: 20,
+          height: 400
+        }}
+      >
       <TouchableOpacity
         onPress={() => reset()}
         style={{
@@ -554,7 +881,7 @@ const QRScanner = ({ws}) => {
               color='black'
             />
           }
-          placeholder = "Contact number"
+          placeholder = "Mobile No. (e.g. 09306319388)"
           keyboardType = "number-pad"
           returnKeyType = "next"
           onChangeText={setCnum}
@@ -572,6 +899,7 @@ const QRScanner = ({ws}) => {
             onPress = {checkInfo}
           />
         </ScrollView>
+        </ImageBackground>
       </View>
     </BottomSheet>
     </View>
