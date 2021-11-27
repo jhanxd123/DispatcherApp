@@ -28,13 +28,13 @@ const QRScanner = ({ws}) => {
   const height  = Dimensions.get('screen').height;
   const width  = Dimensions.get('screen').width;
 
-
-
   const readingQr = (e) => {
     if(e.data.match(/ORMOC/) == null){
+      ws.send('LOADCHANGES');
       goodSound.play();
       queueVehicle(e.data);
     }else{
+      ws.send('LOADCHANGES');
       goodSound.play();
       setQRVal(e.data);
       setVisible(true);
@@ -248,6 +248,7 @@ const QRScanner = ({ws}) => {
       });
       const json = await response.json();
       if(json == "success"){
+        ws.send("RELOADPUV");
         setStatus("Passenger removed\n");
         Alert.alert("Passenger removed", "Passenger is successfully removed", [{
           text: "Ok"
@@ -645,7 +646,7 @@ const QRScanner = ({ws}) => {
               marginBottom: 5,
               height: 60,
               backgroundColor: bColor,
-              borderRadius: 5,
+              borderRadius: 50,
               justifyContent: "center",
               alignItems: "center",
               }}
@@ -670,7 +671,7 @@ const QRScanner = ({ws}) => {
               marginBottom: 5,
               height: 60,
               backgroundColor: bColor,
-              borderRadius: 5,
+              borderRadius: 50,
               justifyContent: "center",
               alignItems: "center",
               }}
@@ -695,7 +696,7 @@ const QRScanner = ({ws}) => {
               marginBottom: 5,
               height: 60,
               backgroundColor: bColor,
-              borderRadius: 5,
+              borderRadius: 50,
               justifyContent: "center",
               alignItems: "center",
               }}
@@ -720,7 +721,7 @@ const QRScanner = ({ws}) => {
               marginBottom: 5,
               height: 60,
               backgroundColor: bColor,
-              borderRadius: 5,
+              borderRadius: 50,
               justifyContent: "center",
               alignItems: "center",
               }}
@@ -750,7 +751,7 @@ const QRScanner = ({ws}) => {
                   height: 50,
                   paddingLeft: 8,
                   paddingRight: 8,
-                  borderRadius: 5,
+                  borderRadius: 50,
                   backgroundColor: "#f1d219",
                   justifyContent: "center",
                 }}
@@ -773,7 +774,7 @@ const QRScanner = ({ws}) => {
                 height: 50,
                 paddingLeft: 8,
                 paddingRight: 8,
-                borderRadius: 5,
+                borderRadius: 50,
                 backgroundColor: "#f1d219",
                 justifyContent: "center",
               }}
@@ -831,6 +832,9 @@ const QRScanner = ({ws}) => {
       </TouchableOpacity>
         <ScrollView>
         <Input
+          style={{
+            fontSize: 16
+          }}
           leftIcon={
             <Icon
               name='user'
@@ -845,6 +849,9 @@ const QRScanner = ({ws}) => {
           value={fname}
         />
         <Input
+          style={{
+            fontSize: 16
+          }}
           leftIcon={
             <Icon
               name='user'
@@ -859,6 +866,9 @@ const QRScanner = ({ws}) => {
           value={mname}
         />
         <Input
+          style={{
+            fontSize: 16
+          }}
           leftIcon={
             <Icon
               name='user'
@@ -867,12 +877,15 @@ const QRScanner = ({ws}) => {
               color='black'
             />
           }
-          placeholder = "Last Name"
+          placeholder = "Last Name (Include the suffix here if there is)"
           returnKeyType = "next"
           onChangeText={setLname}
           value={lname}
         />
         <Input
+          style={{
+            fontSize: 16
+          }}
           leftIcon={
             <Icon
               name='hash'
@@ -889,7 +902,7 @@ const QRScanner = ({ws}) => {
         />
           <Button
             buttonStyle={{
-              borderRadius: 2,
+              borderRadius: 50,
               marginLeft: 20,
               marginRight: 20,
               backgroundColor: '#f7dc6f',

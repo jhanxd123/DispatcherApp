@@ -47,18 +47,24 @@ const Passenger = ({item, unload}) => (
     </View>
 );
 
-const Passengerlist = ({ws, route, warning}) => {
+const Passengerlist = ({navigation, ws, route}) => {
 
   const [reply, setReply] = useState([]);
   const [ref, setRef] = useState(false);
-  const [mount, setMount] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [passengerCount, setPassengerCount] = useState(route.params.vehicle[4]);
+
+  useEffect(() => {
+    const retrieveP = navigation.addListener('focus', () => {
+      retrievePassengerList(route.params.vehicle[0]);
+    });
+    return retrieveP;
+  }, [navigation]);
+
 
   ws.onmessage = (e) => {
-    if(e.data === 'LOADCHANGES'){
-      if(mount){
-        retrievePassengerList(route.params.vehicle[0]);
-      }
+    if(e.data == 'LOADCHANGES'){
+      retrievePassengerList(route.params.vehicle[0]);
     }
   }
 
@@ -78,7 +84,7 @@ const Passengerlist = ({ws, route, warning}) => {
       const json = await response.json();
       setReply(JSON.parse(json));
     }catch(error){
-      warning();
+      Alert.alert("Problem loading passengers", "Cannot load passengers, please check your internet connection and try again");
     }finally{
       setLoading(false);
     }
@@ -105,9 +111,18 @@ const Passengerlist = ({ws, route, warning}) => {
         })
       });
       const json = await response.json();
-      json === "Halt" ? warning() : unloadSuccessFunction(json);
+      if(json == 'error'){
+        Alert.alert("Something went wrong", "The passenger was not successfully unloaded");
+      }else{
+        try{
+          setReply(JSON.parse(json));
+          setPassengerCount(passengerCount - 1);
+        }catch(e){
+          Alert.alert("Something went wrong", "The passenger was not successfully unloaded");
+        }
+      }
     }catch(error){
-      warning();
+      Alert.alert("Something went wrong", "The passenger was not successfully unloaded");
     }
   }
 
@@ -146,15 +161,6 @@ const Passengerlist = ({ws, route, warning}) => {
     setRef(true);
     secrefFunc();
   }
-
-  useEffect(() => {
-    retrievePassengerList(route.params.vehicle[0]);
-    setMount(true);
-    return () => {
-      setMount(false);
-      setReply([]);
-    }
-  },[]);
 
   return(
     loading ?
@@ -220,7 +226,7 @@ const Passengerlist = ({ws, route, warning}) => {
         bottom: 10,
         position: 'absolute',
       }}>
-        {route.params.vehicle[4] + " / " + route.params.vehicle[3]}
+        {passengerCount + " / " + route.params.vehicle[3]}
       </Text>
     </View>
     </View>

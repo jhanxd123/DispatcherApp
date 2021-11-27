@@ -80,7 +80,7 @@ const Item = ({ item, pass, uq }) => (
   </View>
   );
 
-const PUVlist = ({navigation, ws, warning, success}) => {
+const PUVlist = ({navigation, ws}) => {
 
   //This variable holds the data that will be used for the flatlist component.
   const [reply, setReply] = useState([]);
@@ -88,10 +88,18 @@ const PUVlist = ({navigation, ws, warning, success}) => {
   const [loading, setLoading] = useState(true);
   const [mount, setMount] = useState(false);
 
+  useEffect(() => {
+    const retrieveV = navigation.addListener('focus', () => {
+      retrieveList();
+    });
+    return retrieveV;
+  }, [navigation]);
+
   //This is an event that will be triggered if a message was received.
   ws.onmessage = (e) => {
-    if(e.data === 'LOADCHANGES'){
+    if(e.data == "LOADCHANGES"){
       retrieveList();
+      console.log('hehhe');
     }
   }
 
@@ -107,9 +115,8 @@ const PUVlist = ({navigation, ws, warning, success}) => {
       });
       const json = await response.json();
       setReply(JSON.parse(json));
-      console.log(JSON.parse(json));
     }catch(error){
-      warning();
+      Alert.alert("Problem loading PUVs", "Cannot load currently queuing PUV, please check your internet connection and try again");
     }
     finally{
       setLoading(false);
@@ -117,9 +124,9 @@ const PUVlist = ({navigation, ws, warning, success}) => {
   }
 
   const unqueueSuccessFunction = (jason) => {
-    success();
+    Alert.alert("PUV successfully dequeued", "PUV was removed in the queuing list and log was successfully created");
     setReply(JSON.parse(jason));
-    ws.send('LOADCHANGES');
+    ws.send("LOADCHANGES");
   }
 
   const unqueue = async(data) => {
@@ -135,9 +142,9 @@ const PUVlist = ({navigation, ws, warning, success}) => {
         })
       });
       const json = await response.json();
-      json == "error" ? warning() : unqueueSuccessFunction(json);
+      json == "error" ? Alert.alert("Cannot dequeue PUV", "Cannot dequeue PUV, please check your internet connection and try again") : unqueueSuccessFunction(json);
     }catch(error){
-      warning();
+      Alert.alert("Cannot dequeue PUV", "Cannot dequeue PUV, please check your internet connection and try again");
     }
   }
 
@@ -163,7 +170,7 @@ const PUVlist = ({navigation, ws, warning, success}) => {
       }
     }catch(error){
       console.log(error);
-      navigation.navigate('Options', {vehicle: [filename, "/vehicle_images/vehicleImage.png", vehicle, capacity, passengers]});
+      navigation.navigate('Options', {vehicle: [filename, "/vehicle_images/vehicleImage.png", vehicle, capacity, passengers, operator, driver]});
     }
   }
 
@@ -209,15 +216,6 @@ const PUVlist = ({navigation, ws, warning, success}) => {
       />
     );
   }
-
-  useEffect(() => {
-    retrieveList();
-    setMount(true);
-    return () => {
-      setMount(false);
-      setReply([]);
-    }
-  },[]);
 
   return(
     loading ?

@@ -32,7 +32,6 @@ export default function App() {
   const Tab = createBottomTabNavigator();
   const Stack = createNativeStackNavigator();
   const [bool, setBool] = useState(false);
-  const [name, setName] = useState('');
   const [profilename, setProfilename] = useState('');
   const [ping, setPing] = useState(false);
   const [profileURL, setProfileURL] = useState('');
@@ -51,16 +50,12 @@ export default function App() {
   const connectionInterval = setInterval(() => {
     if(ping){
       ws.send('ping');
-      console.log("hello");
     }
   }, 3000);
-
-  const unsuccess = () => Alert.alert("yoho");
 
   function manualQueuing({route}){
     return(
       <Manualqueuing
-        warning = {unsuccess}
         route = {route}
         ws = {ws}
       />
@@ -75,26 +70,21 @@ export default function App() {
       );
   }
 
-  const success = () => Alert.alert('Yehey');
-
   function queuingPUV({navigation}){
     return (
         <PUVlist
           ws = {ws}
           navigation = {navigation}
-          warning = {unsuccess}
-          success = {success}
         />
     );
   }
 
-  function puvDetails({route}){
+  function puvDetails({route, navigation}){
     return(
       <Passengerlist
         route= {route}
         ws = {ws}
-        warning = {unsuccess}
-        success = {success}
+        navigation = {navigation}
       />
     );
   }
@@ -199,7 +189,7 @@ export default function App() {
             borderWidth: 4,
             borderColor: '#00a2e8',
           }}
-            source = {{uri: 'http://192.168.1.21/CapstoneWeb/' + profileURL.slice(1)}}
+            source = {profileURL == null ? require('./assets/profile.png') : {uri: 'http://192.168.1.21/CapstoneWeb/' + profileURL.slice(1)}}
           />
         </View>
         <SafeAreaView
@@ -264,8 +254,9 @@ export default function App() {
         <Tab.Navigator
           screenOptions={({ route }) => ({
             tabBarStyle: {
-              backgroundColor: '#FFF',
+              backgroundColor: '#D5D8DC',
               height: 56,
+              borderColor: '#D5D8DC',
             },
             tabBarIcon: ({ focused, color, size }) => {
               let iconName;
@@ -278,12 +269,10 @@ export default function App() {
                 } else if (route.name === 'PROFILE') {
                   iconName = 'man';
                 }
-
-
                 return <Ionicons name={iconName} size={size} color={color}/>;
               },
-                tabBarActiveTintColor: '#2E7DE1',
-                tabBarInactiveTintColor: 'black',
+                tabBarActiveTintColor: '#21add4',
+                tabBarInactiveTintColor: '#707B7C',
               })
           }
         >
@@ -370,10 +359,6 @@ export default function App() {
     </View>
   );
 
-console.log(id);
-
-//Fetch function
-
   const signin = async (user_pin) => {
     try{
       const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/app_signin.php', {
@@ -403,20 +388,20 @@ console.log(id);
         try{
           let data = JSON.parse(json);
           if(data.status == "onduty"){
-            setBool(true);
             setProfilename(data.name);
             setProfileURL(data.profile);
             setID(data.id);
+            setBool(true);
             reset();
           }
         }catch(e){
-          setIconType(<Ionicons name='error' size={16}/>);
+          setIconType(<Ionicons name='warning' size={16}/>);
           setSignInStatus('Something went wrong');
           reset();
         }
       }
     }catch(error){
-      setIconType(<Ionicons name='error' size={16}/>);
+      setIconType(<Ionicons name='warning' size={16}/>);
       setSignInStatus('Something went wrong');
       reset();
     }
@@ -489,6 +474,8 @@ console.log(id);
     setPinTwo(false);
     setPinThree(false);
     setPinFour(false);
+    setIconType('');
+    setSignInStatus('');
   }
 
   const buttonPress = (value) => {
@@ -504,6 +491,8 @@ console.log(id);
       setPinThree(true);
     }else if(pinCount == 4){
       setPinFour(true);
+      setIconType(<Ionicons name='hand-right-sharp' size={16}/>);
+      setSignInStatus('Wait for a moment...');
     }
   }
 
@@ -553,8 +542,6 @@ console.log(id);
       setSignInStatus(' Please check you internet connection');
     }
   }
-
-
 
   return (
     serverStatus ?
