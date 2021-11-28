@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ImageBackground, ActivityIndicator, Button, View, FlatList, SafeAreaView, StatusBar, Text, TouchableOpacity, Image, Alert, ScrollView } from "react-native";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 //This is the component that will be rendered by the flatlist.
 const Item = ({ item, pass, uq }) => (
@@ -106,7 +107,7 @@ const PUVlist = ({navigation, ws}) => {
   //This will retrieve the list of currently queuing vehicles from the server.
   const retrieveList = async() => {
     try{
-      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/retrievelist.php', {
+      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/retrievelist.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -131,7 +132,7 @@ const PUVlist = ({navigation, ws}) => {
 
   const unqueue = async(data) => {
     try{
-      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/dispatcher_unqueue_vehicle.php', {
+      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/dispatcher_unqueue_vehicle.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -150,7 +151,7 @@ const PUVlist = ({navigation, ws}) => {
 
   const getProfile = async(filename, vehicle, capacity, passengers) => {
     try{
-      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/dispatcher_get_vehicle_profile.php', {
+      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/dispatcher_get_vehicle_profile.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -169,8 +170,7 @@ const PUVlist = ({navigation, ws}) => {
         navigation.navigate('Options', {vehicle: [filename, json.VehicleProfile.slice(1), vehicle, capacity, passengers, operator, driver]});
       }
     }catch(error){
-      console.log(error);
-      navigation.navigate('Options', {vehicle: [filename, "/vehicle_images/vehicleImage.png", vehicle, capacity, passengers, operator, driver]});
+      Alert.alert("Cannot load PUV details", "Cannot load PUV info and passengers, please check your internet connection and try again");
     }
   }
 
@@ -272,20 +272,13 @@ const PUVlist = ({navigation, ws}) => {
           height: '100%',
         }}
       >
-        <Text>
+        <Text style={{color: '#566573'}}>
           No currently queuing vehicle
         </Text>
         <TouchableOpacity
           onPress = {refPressed}
         >
-          <Image
-            style = {{
-              margin: 20,
-              width: 40,
-              height: 40
-            }}
-            source = {require('../assets/reload.png')}
-          />
+          <Ionicons name='refresh' size={40} color='#566573'/>
         </TouchableOpacity>
       </ImageBackground>
     </SafeAreaView>

@@ -17,7 +17,7 @@ import { white } from 'react-native-paper/lib/typescript/styles/colors';
 // Screen Dimension
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
-var ws = new WebSocket('ws://192.168.1.21:8082');
+var ws = new WebSocket('ws://192.168.1.25:8082');
 
 const bgTheme = {
   colors: {
@@ -45,17 +45,16 @@ export default function App() {
     clearInterval(connectionInterval);
   }
 
-  console.log(bool);
-
   const connectionInterval = setInterval(() => {
     if(ping){
       ws.send('ping');
     }
   }, 3000);
 
-  function manualQueuing({route}){
+  function manualQueuing({navigation, route}){
     return(
       <Manualqueuing
+        navigation = {navigation}
         route = {route}
         ws = {ws}
       />
@@ -189,7 +188,7 @@ export default function App() {
             borderWidth: 4,
             borderColor: '#00a2e8',
           }}
-            source = {profileURL == null ? require('./assets/profile.png') : {uri: 'http://192.168.1.21/CapstoneWeb/' + profileURL.slice(1)}}
+            source = {profileURL == null ? require('./assets/profile.png') : {uri: 'http://192.168.1.25/CapstoneWeb' + profileURL.slice(1)}}
           />
         </View>
         <SafeAreaView
@@ -226,6 +225,8 @@ export default function App() {
               }}
               onPress = {() => {
                 setBool(false);
+                setSignInStatus('');
+                setIconType('');
               }}
             >
               <Text
@@ -287,7 +288,8 @@ export default function App() {
             name="PUVS"
             component={puvs}
             options={{
-              headerShown: false
+              headerShown: false,
+              unmountOnBlur: true
             }}
           />
           <Tab.Screen
@@ -361,7 +363,7 @@ export default function App() {
 
   const signin = async (user_pin) => {
     try{
-      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/app_signin.php', {
+      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/app_signin.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -474,17 +476,15 @@ export default function App() {
     setPinTwo(false);
     setPinThree(false);
     setPinFour(false);
-    setIconType('');
-    setSignInStatus('');
   }
 
   const buttonPress = (value) => {
     setPinCount(pinCount + 1);
     setPin(pin + value.toString());
-    setSignInStatus('');
-    setIconType('');
     if(pinCount == 1){
       setPinOne(true);
+      setIconType('');
+      setSignInStatus('');
     }else if(pinCount == 2){
       setPinTwo(true);
     }else if(pinCount == 3){
@@ -526,7 +526,7 @@ export default function App() {
         setTimeout(reject, 5000, 'Request timed out');
     });
 
-    const request = fetch('http://192.168.1.21');
+    const request = fetch('http://192.168.1.25');
     try {
         const response = await Promise
             .race([timeout, request]);

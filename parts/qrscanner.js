@@ -41,6 +41,27 @@ const QRScanner = ({ws}) => {
     }
   }
 
+  const makeItCorrect = (value) => {
+    let name = value.trim().toLowerCase();
+    let tempName = '';
+    let repoName = '';
+    let finalName = '';
+    name = name + ' ';
+    let nameLength = name.length;
+    for(let i = 0; i < nameLength; i++){
+      if(name[i] == ' '){
+        if(tempName != ''){
+          repoName = tempName.charAt(0).toUpperCase() + tempName.slice(1) + ' ';
+          finalName = finalName + repoName;
+          tempName = '';
+        }
+      }else{
+        tempName = tempName + name[i];
+      }
+    }
+    return finalName.trim();
+  }
+
   const reset = () => {
     setFname('');
     setMname('');
@@ -53,7 +74,7 @@ const QRScanner = ({ws}) => {
     setStatus('Processing...\n');
     setBColor('#2471A3');
     try{
-      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/dispatcher_scan_process.php', {
+      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/dispatcher_scan_process.php', {
         method: 'POST',
         headers:{
           Accept: 'application/json',
@@ -124,49 +145,9 @@ const QRScanner = ({ws}) => {
     }
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   const loadPassenger = async(data, destination, companion) => {
     try{
-      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/dispatcher_load_passenger.php', {
+      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/dispatcher_load_passenger.php', {
         method: "POST",
         headers:{
           Accept: 'application/json',
@@ -194,48 +175,9 @@ const QRScanner = ({ws}) => {
     }
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   const removePassenger = async(data, status) => {
     try{
-      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/dispatcher_remove_passenger.php',{
+      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/dispatcher_remove_passenger.php',{
         method: "POST",
         headers:{
           Accept: 'application/json',
@@ -283,51 +225,11 @@ const QRScanner = ({ws}) => {
     }
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   const queueVehicle = async(data) => {
     setStatus('Processing...\n');
     setBColor('#2471A3');
     try{
-      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/dispatcher_queue_vehicles.php',{
+      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/dispatcher_queue_vehicles.php',{
         method: 'POST',
         headers:{
           Accept: 'application/json',
@@ -351,57 +253,9 @@ const QRScanner = ({ws}) => {
     }
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   const checkInfo = async () => {
     if (fname.trim() === '' || mname.trim() === '' || lname.trim() === '' || cnum.trim() === '') {
-      Alert.alert("Invalid input", "Please recheck all the fields for invalid input");
+      Alert.alert("Missing fields", "Please fill all the fields");
     }else if(cnum.trim().length != 11){
       Alert.alert("Invalid input", "Contact number dit not meet the amount of numbers required");
     }
@@ -409,96 +263,57 @@ const QRScanner = ({ws}) => {
       Alert.alert("No QR code scanned", "There is no value to store");
     }
     else{
-      let fullname = fname.trim() + ' ' + mname.trim() + ' ' + lname.trim();
-      let contact = cnum;
-      try{
-        const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/passenger_register_qr.php', {
-          method: 'POST',
-          headers:{
-            Accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            fullname: fullname,
-            contact: contact,
-            qr: qrval
-          })
-        });
-        const json = await response.json();
-        if(json == 'success'){
-          setStatus('Passenger successfully registered\n');
-          Alert.alert("Success", "Passenger is successfully registered");
-          reset();
-        }else if(json == 'registered'){
-          setStatus('QR is already registered\n');
-          Alert.alert("Already registered", "QR is already registered");
-          reset();
-        }else if(json == 'error'){
-          setStatus('Something went wrong\n');
-          Alert.alert("Error", "Something went wrong");
-          reset();
+      let invalid_char = /[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]/g;
+      if(invalid_char.test(fname.trim()) || invalid_char.test(mname.trim()) || invalid_char.test(lname.trim())){
+        Alert.alert("Invalid input", "Special characters are not allowed e.g. (dot, comma, numbers, etc.)");
+      }else{
+        let invalid_str = /\d/;
+        if(invalid_str.test(fname.trim()) || invalid_str.test(mname.trim()) || invalid_str.test(lname.trim()) ){
+          Alert.alert("Invalid input", "Special characters are not allowed e.g. (dot, comma, numbers, etc.)");
         }else{
-          setStatus('Something went wrong\n');
-          Alert.alert("Error", "Something went wrong");
-          reset();
+          let fullname = fname.trim() + ' ' + mname.trim() + ' ' + lname.trim();
+          let contact = cnum;
+          try{
+            const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/passenger_register_qr.php', {
+              method: 'POST',
+              headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                fullname: makeItCorrect(fullname),
+                contact: contact,
+                qr: qrval
+              })
+            });
+            const json = await response.json();
+            if(json == 'success'){
+              setStatus('Passenger successfully registered\n');
+              Alert.alert("Success", "Passenger is successfully registered");
+              reset();
+            }else if(json == 'registered'){
+              setStatus('QR is already registered\n');
+              Alert.alert("Already registered", "QR is already registered");
+              reset();
+            }else if(json == 'error'){
+              setStatus('Something went wrong\n');
+              Alert.alert("Error", "Something went wrong");
+              reset();
+            }else{
+              setStatus('Something went wrong\n');
+              Alert.alert("Error", "Something went wrong");
+              reset();
+            }
+          }catch(error){
+            setBotton(false);
+            setButtonColor(require('../assets/button_gradient.png'));
+            Alert.alert("Error", "Something went wrong");
+            reset();
+          }
         }
-      }catch(error){
-        setBotton(false);
-        setButtonColor(require('../assets/button_gradient.png'));
-        Alert.alert("Error", "Something went wrong");
-        reset();
       }
     }
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   const reScan = () => {
     scanner.reactivate();
@@ -506,46 +321,6 @@ const QRScanner = ({ws}) => {
     setStatus('STATUS\n');
     setButtonColor(require('../assets/button_dis_gradient.png'));
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   return(
     <View style={{

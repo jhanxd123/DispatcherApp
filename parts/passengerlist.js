@@ -61,7 +61,6 @@ const Passengerlist = ({navigation, ws, route}) => {
     return retrieveP;
   }, [navigation]);
 
-
   ws.onmessage = (e) => {
     if(e.data == 'LOADCHANGES'){
       retrievePassengerList(route.params.vehicle[0]);
@@ -70,7 +69,7 @@ const Passengerlist = ({navigation, ws, route}) => {
 
   const retrievePassengerList = async(data) => {
     try{
-      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/retrievepassengerlist.php',
+      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/retrievepassengerlist.php',
       {
         method: 'POST',
         headers: {
@@ -98,7 +97,7 @@ const Passengerlist = ({navigation, ws, route}) => {
 
   const unload = async(file, passenger, vehicle) => {
     try{
-      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/unload.php',{
+      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/unload.php',{
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -188,7 +187,7 @@ const Passengerlist = ({navigation, ws, route}) => {
         opacity: 0.5,
         position: 'absolute'
       }}
-      source={{uri: 'http://192.168.1.21/CapstoneWeb' + route.params.vehicle[1]}}
+      source={{uri: 'http://192.168.1.25/CapstoneWeb' + route.params.vehicle[1]}}
     >
     </ImageBackground>
     <View style={{

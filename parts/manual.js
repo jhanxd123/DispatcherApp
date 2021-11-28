@@ -1,21 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, TextInput, StyleSheet, SafeAreaView, View, TouchableOpacity, Alert, Image, ScrollView, ImageBackground } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import { Input, Icon, ListItem, Button, Card} from 'react-native-elements';
 import { black } from 'react-native-paper/lib/typescript/styles/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const Manualqueuing = ({route, ws}) => {
+const Manualqueuing = ({navigation, route, ws}) => {
   const [fname, setFname] = useState('');
   const [mname, setMname] = useState('');
   const [lname, setLname] = useState('');
   const [cnum, setCnum] = useState('');
   const [dest, setDest] = useState('');
-  const [companion, setCompanion] = useState('false');
+  const [companion, setCompanion] = useState('');
   const [button, setButton] = useState(false);
   const [status, setStatus] = useState('STATUS');
   const [bColor, setBColor] = useState('#f1d219');
 
+  useEffect(() => {
+    const setColorToDefault = navigation.addListener('focus', () => {
+      setBColor('#f1d219');
+      setButton(false);
+      setCompanion('');
+    });
+    return setColorToDefault;
+  }, [navigation]);
 
   function generateString(length) {
     const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -36,25 +44,59 @@ const Manualqueuing = ({route, ws}) => {
     setCompanion('');
   }
 
+  const makeItCorrect = (value) => {
+    let name = value.trim().toLowerCase();
+    let tempName = '';
+    let repoName = '';
+    let finalName = '';
+    name = name + ' ';
+    let nameLength = name.length;
+    for(let i = 0; i < nameLength; i++){
+      if(name[i] == ' '){
+        if(tempName != ''){
+          repoName = tempName.charAt(0).toUpperCase() + tempName.slice(1) + ' ';
+          finalName = finalName + repoName;
+          tempName = '';
+        }
+      }else{
+        tempName = tempName + name[i];
+      }
+    }
+    return finalName.trim();
+  }
+
   const validate = () => {
     setBColor('#f1d219');
     setButton(false);
-     if(fname.trim() === '' || mname.trim()  === '' || lname.trim() === '' || dest.trim() === '' || companion.trim() === ''){
+    setCompanion('');
+     if(fname.trim() === '' || mname.trim()  === '' || lname.trim() === '' || dest.trim() === ''){
        Alert.alert("Missing fields", "Please fill all the fields");
      }else if(cnum.trim().length != 11){
        Alert.alert("Invalid input", "Contact number dit not meet the amount of numbers required");
+     }else if(companion == ''){
+       Alert.alert("Missing Information", "Please indicate if the passenger has a companion or not");
      }else{
-       let name = fname.trim() + " " + mname.trim() + " " + lname.trim();
-       loadPassenger(generateString(5), name, dest, companion);
-       reset();
+       let invalid_str = /\d/;
+       if(invalid_str.test(fname.trim()) || invalid_str.test(mname.trim()) || invalid_str.test(lname.trim()) ){
+         Alert.alert("Invalid input", "Special characters are not allowed in names e.g. (dot, comma, numbers, etc.)");
+       }else{
+         let invalid_char = /[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]/g;
+         if(invalid_char.test(fname.trim()) || invalid_char.test(mname.trim()) || invalid_char.test(lname.trim())){
+           Alert.alert("Invalid input", "Special characters are not allowed in names e.g. (dot, comma, numbers, etc.)");
+         }else{
+           let name = fname.trim() + " " + mname.trim() + " " + lname.trim();
+           loadPassenger(generateString(5), makeItCorrect(name), dest, companion, cnum);
+           reset();
+         }
+       }
      }
   }
 
   // This function is for assigning passengers with vehicles.
-  const loadPassenger = async(data, name, destination, comp) => {
+  const loadPassenger = async(data, name, destination, comp, num) => {
     console.log(data + name + destination + comp);
     try{
-      const response = await fetch('http://192.168.1.21/CapstoneWeb/processes/dispatcher_manual_queue.php', {
+      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/dispatcher_manual_queue.php', {
         method: 'POST',
         headers:{
           Accept: 'application/json',
@@ -64,7 +106,8 @@ const Manualqueuing = ({route, ws}) => {
           data: data,
           name: name,
           destination: destination,
-          companion: comp
+          companion: comp,
+          number: num
         })
       });
       const json = await response.json();
@@ -143,7 +186,7 @@ const Manualqueuing = ({route, ws}) => {
             color='black'
           />
         }
-        placeholder = "Last Name (Include the suffix here if there is)"
+        placeholder = "Last Name (Include suffix if present)"
         returnKeyType = "next"
         onChangeText={setLname}
         value={lname}
