@@ -17,7 +17,7 @@ import { white } from 'react-native-paper/lib/typescript/styles/colors';
 // Screen Dimension
 const width = Dimensions.get('screen').width;
 const height = Dimensions.get('screen').height;
-var ws = new WebSocket('ws://192.168.1.25:8082');
+var ws = new WebSocket('ws://119.92.152.243:8082');
 
 const bgTheme = {
   colors: {
@@ -188,7 +188,7 @@ export default function App() {
             borderWidth: 4,
             borderColor: '#00a2e8',
           }}
-            source = {profileURL == null ? require('./assets/profile.png') : {uri: 'http://192.168.1.25/CapstoneWeb' + profileURL.slice(1)}}
+            source = {profileURL == null ? require('./assets/profile.png') : {uri: 'http://119.92.152.243' + profileURL.slice(1)}}
           />
         </View>
         <SafeAreaView
@@ -363,7 +363,7 @@ export default function App() {
 
   const signin = async (user_pin) => {
     try{
-      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/app_signin.php', {
+      const response = await fetch('http://119.92.152.243/processes/app_signin.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -526,7 +526,7 @@ export default function App() {
         setTimeout(reject, 5000, 'Request timed out');
     });
 
-    const request = fetch('http://192.168.1.25');
+    const request = fetch('http://119.92.152.243');
     try {
         const response = await Promise
             .race([timeout, request]);

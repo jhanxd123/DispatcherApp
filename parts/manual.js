@@ -96,7 +96,7 @@ const Manualqueuing = ({navigation, route, ws}) => {
   const loadPassenger = async(data, name, destination, comp, num) => {
     console.log(data + name + destination + comp);
     try{
-      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/dispatcher_manual_queue.php', {
+      const response = await fetch('http://119.92.152.243/processes/dispatcher_manual_queue.php', {
         method: 'POST',
         headers:{
           Accept: 'application/json',

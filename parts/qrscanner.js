@@ -74,7 +74,7 @@ const QRScanner = ({ws}) => {
     setStatus('Processing...\n');
     setBColor('#2471A3');
     try{
-      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/dispatcher_scan_process.php', {
+      const response = await fetch('http://119.92.152.243/processes/dispatcher_scan_process.php', {
         method: 'POST',
         headers:{
           Accept: 'application/json',
@@ -147,7 +147,7 @@ const QRScanner = ({ws}) => {
 
   const loadPassenger = async(data, destination, companion) => {
     try{
-      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/dispatcher_load_passenger.php', {
+      const response = await fetch('http://119.92.152.243/processes/dispatcher_load_passenger.php', {
         method: "POST",
         headers:{
           Accept: 'application/json',
@@ -177,7 +177,7 @@ const QRScanner = ({ws}) => {
 
   const removePassenger = async(data, status) => {
     try{
-      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/dispatcher_remove_passenger.php',{
+      const response = await fetch('http://119.92.152.243/processes/dispatcher_remove_passenger.php',{
         method: "POST",
         headers:{
           Accept: 'application/json',
@@ -190,7 +190,7 @@ const QRScanner = ({ws}) => {
       });
       const json = await response.json();
       if(json == "success"){
-        ws.send("RELOADPUV");
+        ws.send("LOADCHANGES");
         setStatus("Passenger removed\n");
         Alert.alert("Passenger removed", "Passenger is successfully removed", [{
           text: "Ok"
@@ -229,7 +229,7 @@ const QRScanner = ({ws}) => {
     setStatus('Processing...\n');
     setBColor('#2471A3');
     try{
-      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/dispatcher_queue_vehicles.php',{
+      const response = await fetch('http://119.92.152.243/processes/dispatcher_queue_vehicles.php',{
         method: 'POST',
         headers:{
           Accept: 'application/json',
@@ -261,20 +261,19 @@ const QRScanner = ({ws}) => {
     }
     else if(qrval == ''){
       Alert.alert("No QR code scanned", "There is no value to store");
-    }
-    else{
+    }else{
       let invalid_char = /[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]/g;
       if(invalid_char.test(fname.trim()) || invalid_char.test(mname.trim()) || invalid_char.test(lname.trim())){
         Alert.alert("Invalid input", "Special characters are not allowed e.g. (dot, comma, numbers, etc.)");
       }else{
         let invalid_str = /\d/;
-        if(invalid_str.test(fname.trim()) || invalid_str.test(mname.trim()) || invalid_str.test(lname.trim()) ){
+        if(invalid_str.test(fname.trim()) || invalid_str.test(mname.trim()) || invalid_str.test(lname.trim())){
           Alert.alert("Invalid input", "Special characters are not allowed e.g. (dot, comma, numbers, etc.)");
         }else{
           let fullname = fname.trim() + ' ' + mname.trim() + ' ' + lname.trim();
           let contact = cnum;
           try{
-            const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/passenger_register_qr.php', {
+            const response = await fetch('http://119.92.152.243/processes/passenger_register_qr.php', {
               method: 'POST',
               headers:{
                 Accept: 'application/json',

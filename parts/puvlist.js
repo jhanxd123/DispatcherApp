@@ -107,7 +107,7 @@ const PUVlist = ({navigation, ws}) => {
   //This will retrieve the list of currently queuing vehicles from the server.
   const retrieveList = async() => {
     try{
-      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/retrievelist.php', {
+      const response = await fetch('http://119.92.152.243/processes/retrievelist.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -132,7 +132,7 @@ const PUVlist = ({navigation, ws}) => {
 
   const unqueue = async(data) => {
     try{
-      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/dispatcher_unqueue_vehicle.php', {
+      const response = await fetch('http://119.92.152.243/processes/dispatcher_unqueue_vehicle.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -151,7 +151,7 @@ const PUVlist = ({navigation, ws}) => {
 
   const getProfile = async(filename, vehicle, capacity, passengers) => {
     try{
-      const response = await fetch('http://192.168.1.25/CapstoneWeb/processes/dispatcher_get_vehicle_profile.php', {
+      const response = await fetch('http://119.92.152.243/processes/dispatcher_get_vehicle_profile.php', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
