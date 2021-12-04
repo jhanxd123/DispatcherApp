@@ -163,7 +163,7 @@ const PUVlist = ({navigation, ws}) => {
       });
       const json = await response.json();
       let operator = json.FirstName + ' ' + json.MiddleName[0] + '. ' + json.LastName;
-      let driver = json.DFirstName + ' ' + json.MiddleName[0] + '. ' + json.LastName;
+      let driver = json.DFirstName + ' ' + json.DMiddleName[0] + '. ' + json.DLastName;
       if(json.VehicleProfile == null){
         navigation.navigate('Options', {vehicle: [filename, '/vehicle_images/vehicleImage.png', vehicle, capacity, passengers, operator, driver]});
       }else{
