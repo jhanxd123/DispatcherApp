@@ -83,38 +83,7 @@ const Passengerlist = ({navigation, ws, route}) => {
       const json = await response.json();
       setReply(JSON.parse(json));
     }catch(error){
-      Alert.alert("Problem loading passengers", "Cannot load passengers, please check your internet connection and try again");
-    }finally{
-      setLoading(false);
-    }
-  }
-
-  const unloadSuccessFunction = (jason) => {
-    Alert.alert("Success", "Passenger successfully unloaded from the vehicle");
-    setReply(JSON.parse(jason));
-    ws.send('LOADCHANGES');
-  }
-
-  const unload = async(file, passenger, vehicle) => {
-    try{
-      const response = await fetch('http://119.92.152.243/processes/unload.php',{
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          file: file,
-          passenger: passenger,
-          vehicle: vehicle
-        })
-      });
-      const json = await response.json();
-      if(json == 'error'){
-        Alert.alert("Something went wrong", "The passenger was not successfully unloaded");
-      }else{
-        try{
-          setReply(JSON.parse(json));
+      Alert.alert("Problem loading passengers", "Cannot load passengers, please check your internet connection and try again"(JSON.parse(json));
           setPassengerCount(passengerCount - 1);
         }catch(e){
           Alert.alert("Something went wrong", "The passenger was not successfully unloaded");

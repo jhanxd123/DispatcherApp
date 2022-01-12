@@ -78,11 +78,11 @@ const Manualqueuing = ({navigation, route, ws}) => {
      }else{
        let invalid_str = /\d/;
        if(invalid_str.test(fname.trim()) || invalid_str.test(mname.trim()) || invalid_str.test(lname.trim()) ){
-         Alert.alert("Invalid input", "Special characters are not allowed in names e.g. (dot, comma, numbers, etc.)");
+         Alert.alert("Invalid input", "Special characters and numbers are not allowed in names");
        }else{
          let invalid_char = /[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]/g;
          if(invalid_char.test(fname.trim()) || invalid_char.test(mname.trim()) || invalid_char.test(lname.trim())){
-           Alert.alert("Invalid input", "Special characters are not allowed in names e.g. (dot, comma, numbers, etc.)");
+           Alert.alert("Invalid input", "Special characters and numbers are not allowed in names");
          }else{
            let name = fname.trim() + " " + mname.trim() + " " + lname.trim();
            loadPassenger(generateString(5), makeItCorrect(name), dest, companion, cnum);

@@ -200,7 +200,7 @@ const QRScanner = ({ws}) => {
       });
       }else if(json == "error"){
         setStatus("Something went wrong\n");
-        Alert.alert("Something went wrong", "Something went wrong, removing the passenger", [{
+        Alert.alert("Something went wrong", "Something went wrong removing the passenger", [{
           text: "Ok"
         }],
       {
@@ -208,7 +208,7 @@ const QRScanner = ({ws}) => {
       });
       }else{
         setStatus("Something went wrong\n");
-        Alert.alert("Something went wrong", "Something went wrong, removing the passenger", [{
+        Alert.alert("Something went wrong", "Something went wrong removing the passenger", [{
           text: "Ok"
         }],
       {

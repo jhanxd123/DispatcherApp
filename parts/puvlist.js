@@ -117,7 +117,7 @@ const PUVlist = ({navigation, ws}) => {
       const json = await response.json();
       setReply(JSON.parse(json));
     }catch(error){
-      Alert.alert("Problem loading PUVs", "Cannot load currently queuing PUV, please check your internet connection and try again");
+        Alert.alert("Problem loading PUVs", "Cannot load currently queuing PUV, please check your internet connection and try again");
     }
     finally{
       setLoading(false);
